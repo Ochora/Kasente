@@ -1,0 +1,52 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Each cloud build gets a higher version number, so a new APK installs over the old one and keeps your data.
+def buildNumber = (System.getenv('GITHUB_RUN_NUMBER') ?: '1') as Integer
+
+android {
+    namespace 'ug.kasente.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'ug.kasente.app'
+        minSdk 24
+        targetSdk 34
+        versionCode buildNumber
+        versionName "0.1.${buildNumber}"
+        // Microsoft app (client) ID for sign-in and OneDrive. Not a secret.
+        resValue "string", "ms_client_id", (System.getenv('KASENTE_MS_CLIENT_ID') ?: (project.findProperty('kasenteMsClientId') ?: ''))
+    }
+
+    // Test-only signing key, kept in the repo so every build can update the last one.
+    // Make a new private key before publishing to the Play Store.
+    signingConfigs {
+        test {
+            storeFile file('kasente-test.jks')
+            storePassword 'kasente-test'
+            keyAlias 'kasente'
+            keyPassword 'kasente-test'
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.test
+            minifyEnabled false
+        }
+        debug {
+            signingConfig signingConfigs.test
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+}
