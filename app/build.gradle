@@ -52,6 +52,8 @@ android {
 }
 
 dependencies {
+    // Keeps the Kotlin library versions pulled in by the libraries below consistent
+    implementation platform('org.jetbrains.kotlin:kotlin-bom:1.8.22')
     // Sharing photos and files safely with the camera and other apps
     implementation 'androidx.core:core:1.13.1'
     // Reading receipts on the phone, offline (Latin script: English, Swahili, French…)
