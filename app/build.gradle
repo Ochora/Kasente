@@ -15,6 +15,8 @@ android {
         targetSdk 34
         versionCode buildNumber
         versionName "0.1.${buildNumber}"
+        // Phones use ARM processors; leaving out emulator-only code roughly halves the download
+        ndk { abiFilters 'armeabi-v7a', 'arm64-v8a' }
         // Microsoft app (client) ID for sign-in and OneDrive. Not a secret.
         resValue "string", "ms_client_id", (System.getenv('KASENTE_MS_CLIENT_ID') ?: (project.findProperty('kasenteMsClientId') ?: ''))
     }
