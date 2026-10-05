@@ -42,26 +42,27 @@ People register by signing in with their Microsoft email (Outlook, Hotmail, Live
 
 Then put the Application (client) ID in `gradle.properties` as `kasenteMsClientId=…`, or add it as a repository secret named `KASENTE_MS_CLIENT_ID`.
 
-## What works in this build
+## What works in this build (test build 3)
 
 | Feature | Status |
 |---|---|
-| Reading MoMo, Airtel Money and bank SMS | Works. Reads the last 60 days on first open, then checks for new messages each time you open the app. Skips OTPs and promotions. Messages it isn't sure about are marked **Check**. |
-| Logging by hand, quick notes ("boda to town 4k") | Works |
-| Budgets per category, alerts at 80% and 100% | Works |
-| Pay cycle from your payday | Works |
-| Bills with phone reminders (3 days, 1 day, due day at 8:00) | Works. Repeat monthly, every term or yearly. |
-| Lending and borrowing ledger, "loan" note detection | Works |
-| Savings goals, investments, transport fare checks | Works |
-| Advisor | Works from your own figures, on the phone. The Claude-powered advisor comes later. |
-| Analytics charts, CSV export for Excel | Works |
-| PIN lock and fingerprint unlock | Works |
-| Sign in with Microsoft, data kept in your OneDrive | Works once the Microsoft app ID is added |
-| Backup and restore | Works. Saves a file to Downloads. |
-| Receipt photos | Camera works. You type the items; automatic reading comes next. |
-| WhatsApp bot | In-app preview only. The real bot needs a server. |
-| Family and group mode | Needs online accounts. Viewable with sample data only. |
-| PDF reports, Luganda | Not yet |
+| Registration: name, country, currency, language, payday, then accounts with balances, advances and loans, then household | Works. Steps 2 and 3 can be skipped |
+| Microsoft sign-in, data kept in your OneDrive | Built, switched on once the Microsoft app ID is added |
+| Reading MoMo, Airtel Money, M-Pesa and bank SMS | Works. Also reads advances, loans, recoveries, limits and fees, and messages from Xeno, NSSF and unit trusts |
+| Accounts by provider (brand colour badge or your own picture), any African currency | Works. Exchange rates update from the internet |
+| Advances and loans per account (used, limit, outstanding) | Works, kept separate from income and spending |
+| Receipt scanning | Works. Text is read on the phone (Google ML Kit, offline); you check the items before saving |
+| Spending screen: period, category, detail, transport, health, fees, top places, who it was for | Works |
+| Personal vs household expenses, children and allowances | Works on one phone |
+| My money profile: net worth, what you have, what you owe, assets, wellness score | Works |
+| Advisor: Ask, Learn (13 lessons, books, official resources), My review | Works on the phone. Optional Claude answers with your own API key |
+| Streaks, points, badges | Works. Prizes to be announced |
+| Exports: Excel workbook, PDF (via Android's "Save as PDF"), CSV, each with Open and Share | Works |
+| Languages: English, Kiswahili, Français | Main screens translated; longer texts stay in English for now |
+| Budgets, bills with reminders, lending, goals, investments, fares, PIN and fingerprint lock, backups | Works |
+| WhatsApp bot | In-app preview only. The real bot needs a server |
+| Family members on their own phones with shared data | Needs online sync (next phase) |
+| Luganda | Waiting for a native-speaker translation |
 
 ## A one-week test plan
 
@@ -74,10 +75,15 @@ Then put the Application (client) ID in `gradle.properties` as `kasenteMsClientI
 
 ## Project layout
 
+- `web-src/`: the sources the app screens are built from (`kasente.html` prototype, `layer.js`, `l2/*.js` build 3 features, `i18n.js` translations, `transform.py` which combines them into `app/src/main/assets/index.html`)
+
+
 - `app/src/main/assets/index.html`: the whole app interface (HTML, CSS and JavaScript, fonts bundled for offline use)
 - `app/src/main/java/ug/kasente/app/`: the Android shell
   - `MainActivity.java`: hosts the interface, handles the camera, back button and status bar
   - `Bridge.java`: what the interface can ask the phone for (SMS, files, fingerprint, reminders)
+  - `Receipts.java`: reads receipt photos with on-device text recognition
+  - `Net.java`: exchange rates and the optional Claude advisor
   - `Cloud.java`: Microsoft sign-in (no password or secret stored) and reading/writing the OneDrive app folder
   - `Reminders.java`, `ReminderReceiver.java`, `BootReceiver.java`: bill and loan notifications
 - `app/kasente-test.jks`: a test-only signing key so each build updates the last. Create a new private key before any Play Store release.

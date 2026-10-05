@@ -1,0 +1,1187 @@
+<title>Kasente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one phone-sized app column (lake-teal ink, marigold action colour, a woven barkcloth texture on the net-worth card) centred on a quiet stage, with a module guide rail on wide screens */
+:root{
+  --stage:#DCE5E2; --bg:#F2F6F5; --surface:#FFFFFF; --surface-2:#E7EEEC; --line:#D4DEDB;
+  --ink:#0F2624; --muted:#566C69; --faint:#8A9E9A;
+  --accent:#0E6B66; --accent-ink:#FFFFFF; --accent-soft:#D5EBE8;
+  --sun:#E6A21C; --sun-ink:#231803; --sun-soft:#FBEFD3;
+  --good:#1F7F4B; --good-soft:#DAF0E2; --warn:#A86C05; --warn-soft:#FBEBCB; --bad:#BD3628; --bad-soft:#F8DEDA;
+  --hero:#0A4845; --hero-2:#0F6A64; --hero-ink:#F4FAF8; --hero-muted:#A8CEC9;
+  --shadow:0 1px 2px rgba(15,38,36,.05),0 10px 30px -12px rgba(15,38,36,.18);
+  --f-display:"Bricolage Grotesque","Figtree",system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --stage:#050D0C; --bg:#0A1514; --surface:#12211F; --surface-2:#1A2D2A; --line:#244039;
+  --ink:#E4EEEB; --muted:#94ABA6; --faint:#62807A;
+  --accent:#3FB7AC; --accent-ink:#03201D; --accent-soft:#153936;
+  --sun:#F0B84A; --sun-ink:#231803; --sun-soft:#3A2D12;
+  --good:#4FC683; --good-soft:#133524; --warn:#EBAB3C; --warn-soft:#3A2B10; --bad:#F06C5D; --bad-soft:#3D1A16;
+  --hero:#0B3633; --hero-2:#11544E; --hero-ink:#F0F8F6; --hero-muted:#9CC6BF;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -12px rgba(0,0,0,.6);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --stage:#050D0C; --bg:#0A1514; --surface:#12211F; --surface-2:#1A2D2A; --line:#244039;
+  --ink:#E4EEEB; --muted:#94ABA6; --faint:#62807A;
+  --accent:#3FB7AC; --accent-ink:#03201D; --accent-soft:#153936;
+  --sun:#F0B84A; --sun-ink:#231803; --sun-soft:#3A2D12;
+  --good:#4FC683; --good-soft:#133524; --warn:#EBAB3C; --warn-soft:#3A2B10; --bad:#F06C5D; --bad-soft:#3D1A16;
+  --hero:#0B3633; --hero-2:#11544E; --hero-ink:#F0F8F6; --hero-muted:#9CC6BF;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -12px rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{height:100%;box-sizing:border-box}
+body{height:100%;margin:0;background:var(--stage);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:inherit}
+input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:10px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+p{margin:0}
+.num,.tnum{font-variant-numeric:tabular-nums}
+.i{flex:none;display:block}
+
+/* stage + phone */
+.stage{height:100%;display:flex;align-items:center;justify-content:center;gap:56px;padding-block:20px;padding-inline:16px}
+.phone{position:relative;width:100%;max-width:420px;height:100%;max-height:900px;background:var(--bg);border:1px solid var(--line);border-radius:38px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 90px -40px rgba(8,40,37,.55)}
+@media (max-width:520px){.stage{padding:0}.phone{max-width:none;max-height:none;border:0;border-radius:0;box-shadow:none}}
+
+/* guide rail */
+.guide{width:300px;flex:none;display:none;max-height:100%;overflow:auto;padding-block:8px}
+@media (min-width:1000px){.guide{display:block}}
+.guide-brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:26px}
+.guide p{color:var(--muted);margin-top:12px;max-width:34ch;font-size:14px}
+.guide-list{list-style:none;margin:22px 0 0;padding:0;display:grid;gap:2px}
+.guide-list button{width:100%;display:grid;grid-template-columns:42px 1fr;align-items:center;padding:8px 10px;border-radius:10px;font-weight:500;font-size:14px;color:var(--ink)}
+.guide-list button:hover{background:var(--surface)}
+.guide-list span{font-family:var(--f-mono);font-size:12px;color:var(--faint)}
+.guide-foot{margin-top:18px;font-size:12px;color:var(--faint)}
+
+/* top bar */
+.top{flex:none;display:flex;align-items:center;gap:10px;padding:18px 16px 10px;min-height:68px}
+.top-title{font-size:26px;font-weight:800;flex:1;min-width:0}
+.top-title.sm{font-size:19px;font-weight:700}
+.top-actions{display:flex;gap:6px;margin-left:auto}
+.icon-btn{position:relative;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:var(--ink);background:var(--surface);border:1px solid var(--line)}
+.icon-btn .badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:9px;background:var(--bad);color:#fff;font-size:10.5px;font-weight:700;display:grid;place-items:center;padding:0 4px;border:2px solid var(--bg)}
+.greet{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.greet-hi{font-family:var(--f-display);font-weight:700;font-size:19px;line-height:1.1}
+.greet-sub{color:var(--muted);font-size:12.5px}
+.logo-mark{width:38px;height:38px;border-radius:12px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:21px;flex:none;position:relative;overflow:hidden}
+.logo-mark::after{content:"";position:absolute;width:12px;height:12px;border-radius:50%;background:var(--sun);right:-3px;bottom:-3px}
+.logo-mark.lg{width:64px;height:64px;font-size:36px;border-radius:20px}
+.logo-mark.lg::after{width:20px;height:20px;right:-5px;bottom:-5px}
+
+/* view */
+.view{flex:1;overflow-y:auto;overflow-x:hidden;padding:2px 16px 118px;overscroll-behavior:contain}
+.screen{display:flex;flex-direction:column;gap:14px;animation:fade .22s ease-out}
+@keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* nav */
+.nav{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);align-items:end;padding:8px 8px calc(10px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--surface) 90%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);z-index:20}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--faint);padding:6px 0;border-radius:12px}
+.nav button.on{color:var(--accent)}
+.nav .fab{width:58px;height:58px;border-radius:20px;background:var(--sun);color:var(--sun-ink);justify-self:center;justify-content:center;margin-top:-28px;box-shadow:0 10px 24px -8px color-mix(in srgb,var(--sun) 70%,transparent);padding:0}
+
+/* generic */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:8px 2px -4px}
+.sec-head h2{font-size:17px;font-weight:700}
+.link{color:var(--accent);font-weight:600;font-size:14px}
+.eyebrow{font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.xs{font-size:12px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;gap:10px;align-items:center}
+.row.wrap{flex-wrap:wrap}
+.grow{flex:1;min-width:0}
+.between{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.accent{background:var(--accent-soft);color:var(--accent)}
+.pill.sun{background:var(--sun-soft);color:var(--warn)}
+.src{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border-radius:5px;background:var(--surface-2);color:var(--muted);margin-left:2px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 18px;border-radius:14px;font-weight:700;font-size:15px;background:var(--surface-2);color:var(--ink)}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.sun{background:var(--sun);color:var(--sun-ink)}
+.btn.danger{background:var(--bad-soft);color:var(--bad)}
+.btn.block{width:100%}
+.btn.sm{min-height:36px;padding:0 12px;font-size:13.5px;border-radius:11px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.bar{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden;position:relative}
+.bar>i{position:absolute;inset:0 auto 0 0;border-radius:99px;background:var(--accent)}
+.bar.thick{height:12px}
+.pace{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);opacity:.55;border-radius:2px}
+
+/* hero */
+.hero{position:relative;overflow:hidden;border-radius:26px;padding:18px 18px 16px;background:linear-gradient(150deg,var(--hero),var(--hero-2));color:var(--hero-ink)}
+.hero::before{content:"";position:absolute;inset:0;opacity:.16;pointer-events:none;background-image:repeating-linear-gradient(45deg,var(--sun) 0 2px,transparent 2px 16px),repeating-linear-gradient(-45deg,var(--hero-ink) 0 1px,transparent 1px 16px);-webkit-mask-image:linear-gradient(105deg,transparent 40%,#000 95%);mask-image:linear-gradient(105deg,transparent 40%,#000 95%)}
+.hero>*{position:relative}
+.hero .eyebrow{color:var(--hero-muted)}
+.hero-num{font-family:var(--f-display);font-weight:800;font-size:36px;letter-spacing:-.02em;line-height:1.05;margin-top:6px;font-variant-numeric:tabular-nums}
+.hero-num small{font-size:16px;font-weight:600;color:var(--hero-muted);margin-right:6px;letter-spacing:0}
+.hero-delta{font-size:13px;color:var(--hero-muted);margin-top:4px}
+.hero-delta b{color:var(--sun);font-weight:700}
+.hero-spark{margin:10px -4px 4px;height:54px}
+.hero-foot{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border-top:1px solid color-mix(in srgb,var(--hero-ink) 18%,transparent);padding-top:12px}
+.hero-foot span{display:block;font-size:11px;color:var(--hero-muted)}
+.hero-foot b{font-size:14px;font-variant-numeric:tabular-nums}
+.ghost-pill{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:color-mix(in srgb,var(--hero-ink) 14%,transparent);color:var(--hero-ink)}
+
+/* accounts rail */
+.rail{display:flex;gap:10px;overflow-x:auto;margin:0 -16px;padding:2px 16px 6px;scroll-snap-type:x mandatory;scroll-padding-inline:16px;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.acct{flex:none;width:158px;scroll-snap-align:start;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:2px}
+.acct-head{display:flex;align-items:center;gap:7px;font-weight:600;font-size:13px}
+.acct-dot{width:10px;height:10px;border-radius:3px;flex:none}
+.acct-type{font-size:11.5px;color:var(--muted)}
+.acct-bal{font-weight:700;font-size:16px;margin-top:6px;font-variant-numeric:tabular-nums}
+.acct.add{align-items:center;justify-content:center;border-style:dashed;color:var(--accent);font-weight:600;gap:6px;width:110px}
+
+/* quick actions */
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.qa{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:600;text-align:center;color:var(--ink)}
+.qa .qi{width:54px;height:54px;border-radius:18px;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);color:var(--accent)}
+
+/* tx rows */
+.list{background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.tx{width:100%;display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--line)}
+.list>:last-child{border-bottom:0}
+.chip{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c)}
+.chip.sm{width:32px;height:32px;border-radius:10px}
+.tx-main{min-width:0;display:flex;flex-direction:column}
+.tx-title{font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-sub{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-amt{font-weight:700;font-variant-numeric:tabular-nums;font-size:14.5px;text-align:right}
+.tx-amt.pos{color:var(--good)}
+.tx-amt small{display:block;font-size:11px;font-weight:600;color:var(--muted)}
+.day-head{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--muted);margin:6px 4px -6px}
+
+/* forms */
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field>span{font-size:12.5px;font-weight:600;color:var(--muted)}
+.input,.field input,.field select,.field textarea{width:100%;min-height:46px;border-radius:13px;border:1px solid var(--line);background:var(--bg);padding:10px 12px;font-size:15px;outline:none}
+.field textarea{resize:vertical;min-height:70px;line-height:1.4}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.search{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0 12px;color:var(--muted)}
+.search input{flex:1;min-width:0;border:0;background:none;min-height:44px;outline:none;color:var(--ink)}
+.seg{display:flex;background:var(--surface-2);border-radius:13px;padding:3px;gap:2px}
+.seg button{flex:1;min-height:36px;border-radius:10px;font-size:13.5px;font-weight:600;color:var(--muted);text-align:center;padding:0 8px}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px}
+.chips::-webkit-scrollbar{display:none}
+.chipbtn{flex:none;min-height:34px;padding:0 13px;border-radius:99px;border:1px solid var(--line);background:var(--surface);font-size:13px;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.chipbtn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.toggle{width:46px;height:28px;border-radius:99px;background:var(--surface-2);border:1px solid var(--line);position:relative;flex:none;transition:background .2s}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.toggle.on{background:var(--accent);border-color:var(--accent)}
+.toggle.on::after{transform:translateX(18px)}
+
+/* settings rows */
+.setrow{display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--line);width:100%}
+.setrow .grow b{display:block;font-weight:600;font-size:14.5px}
+.setrow .grow span{display:block;font-size:12.5px;color:var(--muted)}
+
+/* sheet */
+.overlay{position:absolute;inset:0;z-index:40;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(5,20,18,.45);animation:fadein .18s}
+.sheet{background:var(--surface);border-radius:26px 26px 0 0;max-height:92%;display:flex;flex-direction:column;animation:up .25s cubic-bezier(.2,.8,.2,1)}
+.sheet-head{display:flex;align-items:center;gap:10px;padding:10px 16px 8px}
+.sheet-head::before{content:"";position:absolute;left:50%;transform:translateX(-50%);margin-top:-22px;width:40px;height:4px;border-radius:4px;background:var(--line)}
+.sheet-head h3{font-size:19px;flex:1}
+.sheet-body{overflow:auto;padding:4px 16px calc(22px + env(safe-area-inset-bottom,0px))}
+@keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+
+.toast{position:absolute;left:16px;right:16px;bottom:96px;z-index:60;background:var(--ink);color:var(--bg);padding:12px 14px;border-radius:14px;font-size:13.5px;font-weight:500;display:flex;gap:10px;align-items:flex-start;box-shadow:var(--shadow);animation:up .25s}
+
+/* misc components */
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13.5px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;min-width:0;overflow-wrap:anywhere}
+.mono{font-family:var(--f-mono);font-size:12px;line-height:1.55;background:var(--surface-2);border-radius:12px;padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink)}
+.note{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:var(--accent-soft);color:var(--ink);font-size:13.5px}
+.note .i{color:var(--accent);margin-top:1px}
+.note.warn{background:var(--warn-soft)}
+.note.warn .i{color:var(--warn)}
+.note.bad{background:var(--bad-soft)}
+.note.bad .i{color:var(--bad)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:8px;min-height:118px}
+.tile b{font-size:14.5px;font-weight:700}
+.tile span{font-size:12px;color:var(--muted);line-height:1.35}
+.tile .tile-ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+.tile em{font-style:normal;font-size:11px;font-weight:700;color:var(--warn);margin-top:auto}
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px}
+.stat span{display:block;font-size:11.5px;color:var(--muted);font-weight:600}
+.stat b{display:block;font-size:15px;font-variant-numeric:tabular-nums;margin-top:2px}
+.insight{display:flex;gap:12px;align-items:flex-start;background:var(--sun-soft);border-radius:20px;padding:14px 16px;border:1px solid color-mix(in srgb,var(--sun) 30%,transparent)}
+.insight .i{color:var(--warn);margin-top:2px}
+.bill{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);width:100%}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.cal .dow{font-size:10.5px;font-weight:700;color:var(--faint);letter-spacing:.05em}
+.cal .d{aspect-ratio:1;max-width:100%;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12.5px;font-weight:600;position:relative;color:var(--ink)}
+.cal .d.today{background:var(--ink);color:var(--bg)}
+.cal .d.has::after{content:"";width:5px;height:5px;border-radius:50%;background:var(--sun);position:absolute;bottom:4px}
+.cal .d.over::after{background:var(--bad)}
+.cal .d.paid::after{background:var(--good)}
+.cal .d.muted{color:var(--faint)}
+
+/* chat */
+.chat{display:flex;flex-direction:column;gap:10px}
+.msg{max-width:86%;padding:10px 13px;border-radius:18px;font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+.msg.me{align-self:flex-end;background:var(--accent);color:var(--accent-ink);border-bottom-right-radius:6px}
+.msg.ai{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:6px}
+.msg ul{margin:6px 0 0;padding-left:18px}
+.msg .meta{display:block;font-size:10.5px;opacity:.7;margin-top:4px;text-align:right}
+.typing span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muted);margin-right:3px;animation:blink 1s infinite}
+.typing span:nth-child(2){animation-delay:.15s}.typing span:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,100%{opacity:.25}50%{opacity:1}}
+.composer{position:sticky;bottom:-118px;display:flex;gap:8px;align-items:center;background:var(--bg);padding:10px 0 4px}
+.composer input{flex:1;min-width:0;min-height:48px;border-radius:16px;border:1px solid var(--line);background:var(--surface);padding:0 14px;outline:none}
+.composer input:focus{border-color:var(--accent)}
+.send{width:48px;height:48px;border-radius:16px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;flex:none}
+.wa{background:var(--surface-2);border-radius:22px;padding:12px;display:flex;flex-direction:column;gap:8px;background-image:radial-gradient(color-mix(in srgb,var(--faint) 22%,transparent) 1px,transparent 1px);background-size:14px 14px}
+.wa .msg.me{background:var(--good-soft);color:var(--ink)}
+.wa-head{display:flex;align-items:center;gap:10px;padding:4px 4px 8px;border-bottom:1px solid var(--line)}
+.wa-av{width:38px;height:38px;border-radius:50%;background:var(--good);color:#fff;display:grid;place-items:center;font-weight:800;font-family:var(--f-display)}
+
+/* charts */
+.chart text{fill:var(--muted);font-size:10px;font-family:var(--f-body)}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;font-size:12.5px}
+.legend div{display:flex;align-items:center;gap:6px;min-width:0}
+.legend i{width:9px;height:9px;border-radius:3px;flex:none}
+.legend span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.legend b{font-variant-numeric:tabular-nums;font-weight:600}
+.heat{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.heat i{aspect-ratio:1;border-radius:6px;display:block;max-width:100%}
+.stackbar{display:flex;height:14px;border-radius:99px;overflow:hidden;gap:2px}
+.avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13.5px;background:var(--accent-soft);color:var(--accent);flex:none}
+
+/* receipt */
+.receipt{font-family:var(--f-mono);font-size:11.5px;background:#FFFDF6;color:#2A2A2A;padding:14px 14px 18px;border-radius:6px;box-shadow:0 6px 20px -8px rgba(0,0,0,.35);transform:rotate(-1.2deg);max-width:240px;margin:6px auto 10px;line-height:1.5;-webkit-mask-image:linear-gradient(#000 92%,transparent)}
+.receipt .c{text-align:center}
+.receipt .r{display:flex;justify-content:space-between;gap:8px}
+.receipt hr{border:0;border-top:1px dashed #999;margin:6px 0}
+.drop{border:2px dashed var(--line);border-radius:20px;padding:22px 16px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;background:var(--surface);cursor:pointer}
+.drop .i{color:var(--accent)}
+.thumb{width:100%;max-height:220px;object-fit:contain;border-radius:14px;background:var(--surface-2)}
+.itemrow{display:grid;grid-template-columns:1fr 104px 30px;gap:6px;align-items:center}
+.itemrow input{min-height:40px;border-radius:10px;border:1px solid var(--line);background:var(--bg);padding:6px 10px;width:100%;min-width:0;font-size:14px}
+
+/* lock + onboarding */
+.lock{position:absolute;inset:0;z-index:80;background:linear-gradient(170deg,var(--hero),var(--hero-2));color:var(--hero-ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px 16px}
+.lock-name{font-family:var(--f-display);font-weight:800;font-size:28px;text-align:center;margin-top:10px}
+.lock p{color:var(--hero-muted);text-align:center;font-size:14px}
+.pin-dots{display:flex;gap:16px}
+.pin-dots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--hero-ink);opacity:.8}
+.pin-dots i.f{background:var(--sun);border-color:var(--sun);opacity:1}
+.pin-dots.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.keypad{display:grid;grid-template-columns:repeat(3,72px);gap:14px}
+.keypad button{width:72px;height:72px;border-radius:50%;background:color-mix(in srgb,var(--hero-ink) 10%,transparent);color:var(--hero-ink);font-size:26px;font-family:var(--f-display);font-weight:600;display:grid;place-items:center}
+.keypad button:disabled{opacity:.35}
+.onb{position:absolute;inset:0;z-index:70;background:var(--bg);display:flex;flex-direction:column;padding:28px 20px 24px}
+.onb-art{flex:1;display:grid;place-items:center}
+.onb h2{font-size:28px;font-weight:800;line-height:1.1}
+.onb p{color:var(--muted);margin-top:10px;max-width:36ch}
+.dots{display:flex;gap:6px;margin:20px 0}
+.dots i{width:8px;height:8px;border-radius:4px;background:var(--line)}
+.dots i.on{width:22px;background:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="stage">
+  <aside class="guide" aria-label="Prototype guide">
+    <div class="guide-brand"><span class="logo-mark">K</span>Kasente</div>
+    <p>Front-end prototype of every module in the concept document. It runs on sample data for Sarah, a secondary school teacher in Ntinda, paid on the 25th. Everything is clickable.</p>
+    <ol class="guide-list" id="guideList"></ol>
+    <div class="guide-foot">Sample figures only · Pay cycle 25 Sep – 24 Oct 2026</div>
+  </aside>
+
+  <div class="phone" id="phone">
+    <header class="top" id="top"></header>
+    <main class="view" id="view"></main>
+    <nav class="nav" id="nav" aria-label="Main"></nav>
+    <div id="layer"></div>
+    <div class="lock" id="lock" hidden></div>
+    <div class="onb" id="onb" hidden></div>
+  </div>
+</div>
+
+<script>
+/* ---------- icons ---------- */
+const ICONS={
+ home:"M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z",
+ list:"M8 6h13M8 12h13M8 18h13M3.5 6h.5M3.5 12h.5M3.5 18h.5",
+ plus:"M12 5v14M5 12h14",
+ sparkle:"M12 3l1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z",
+ grid:"M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z",
+ bell:"M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4",
+ lock:"M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4",
+ back:"M15 5l-7 7 7 7",
+ chev:"M9 6l6 6-6 6",
+ check:"M5 12l5 5 9-10",
+ x:"M6 6l12 12M18 6L6 18",
+ search:"M11 11m-7 0a7 7 0 1 0 14 0a7 7 0 1 0-14 0M20 20l-4-4",
+ scan:"M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4M7 12h10",
+ camera:"M4 8h3l2-3h6l2 3h3v11H4zM12 13m-3.5 0a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0-7 0",
+ sms:"M4 5h16v11H9l-5 4z M8 10h8",
+ send:"M4 12l16-8-6 16-3-7z",
+ shield:"M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z",
+ cloud:"M7 18a5 5 0 0 1-.5-10A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z",
+ sun:"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0-8 0M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5",
+ moon:"M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z",
+ target:"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0-18 0M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0-10 0M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0",
+ trend:"M3 17l6-6 4 4 8-8M15 7h6v6",
+ chart:"M5 20V11M11 20V5M17 20v-7M3 20h18",
+ gear:"M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9L7 7M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1",
+ wallet:"M3 7h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 7V6a2 2 0 0 1 2-2h11v3M16 13.5h2",
+ calendar:"M4 6h16v14H4zM4 10h16M8 3v4M16 3v4",
+ upload:"M12 16V4M6 10l6-6 6 6M4 20h16",
+ down:"M12 4v12M6 10l6 6 6-6M4 20h16",
+ finger:"M12 11v4M8.5 10a3.5 3.5 0 0 1 7 0v3M5.5 12a6.5 6.5 0 0 1 13 0M9.5 20.5c.8-1.8 1-3.6 1-5.5M15 20c.5-1.4.7-2.8.8-4.3",
+ del:"M9 6h11v12H9l-6-6zM12 10l4 4M16 10l-4 4",
+ info:"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0-18 0M12 11v6M12 7.5v.5",
+ alert:"M12 3l10 18H2zM12 10v5M12 18v.5",
+ whatsapp:"M4 20l1.3-4A8 8 0 1 1 8 18.8zM9 9c0 3 3 6 6 6l1-1.5-2-1-1 1c-1-.5-2-1.5-2.5-2.5l1-1-1-2z",
+ bowl:"M3.5 11h17a8.5 8.5 0 0 1-17 0zM8 7.5c0-1 1-1 1-2.5M12 7.5c0-1 1-1 1-2.5M16 7.5c0-1 1-1 1-2.5",
+ bike:"M5.5 17.5m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0M18.5 17.5m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0M5.5 17.5L9 10h5l4.5 7.5M11 10l-1.5-3.5H7M15 6h2.5l1.5 4",
+ bolt:"M13 2L4 14h7l-1 8 9-12h-7z",
+ signal:"M4 20v-3M9 20v-7M14 20V9M19 20V4",
+ house:"M3 11l9-7 9 7M5 10v10h14V10M10 20v-6h4v6",
+ book:"M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 21V5M8 7h7",
+ cross:"M10 3h4v7h7v4h-7v7h-4v-7H3v-4h7z",
+ tv:"M3 7h18v12H3zM8 3l4 4 4-4",
+ coins:"M12 7m-7 0a7 3 0 1 0 14 0a7 3 0 1 0-14 0M5 7v5c0 1.7 3.1 3 7 3s7-1.3 7-3V7M5 12v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5",
+ bag:"M4 8h16v12H4zM9 8V5h6v3",
+ people:"M9 8m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16.5 11a2.5 2.5 0 1 0 0-5M21 20c0-2.5-1.5-4.6-3.5-5.5",
+ scissors:"M6 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0M6 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0M8.5 7.5L20 18M8.5 16.5L20 6",
+ dots:"M5 12h1M11.5 12h1M18 12h1",
+ in:"M12 4v12M6 10l6 6 6-6M5 20h14",
+ hand:"M2 12l4-4h4l2 2 2-2h4l4 4-6 6-3-2-1 1-3-3M10 10l3 3",
+ receipt:"M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6M9 16h3",
+ map:"M9 4L3 6v14l6-2 6 2 6-2V4l-6 2zM9 4v14M15 6v14",
+ piggy:"M5 11a7 6 0 0 1 13-2h2v4l-2 1-1 3h-2l-.5-1.5h-5L9 17H7l-1-3c-1-.8-1-2-1-3zM15 10h.5",
+};
+const ic=(n,s=20)=>`<svg class="i" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${ICONS[n]||ICONS.dots}"/></svg>`;
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const DAY=864e5;
+const pd=s=>new Date(s.replace(' ','T'));
+const TODAY=pd('2026-10-02 20:06');
+const TODAY0=pd('2026-10-02 00:00');
+const CYCLE_START=pd('2026-09-25 00:00');
+const CYCLE_END=pd('2026-10-24 23:59');
+const CYCLE_DAYS=30;
+const DAY_OF_CYCLE=Math.floor((TODAY-CYCLE_START)/DAY)+1;
+const DAYS_LEFT=CYCLE_DAYS-DAY_OF_CYCLE;
+const num=n=>Math.round(Math.abs(n)).toLocaleString('en-US');
+const ugx=n=>(n<0?'−':'')+'UGX '+num(n);
+const kf=n=>{const a=Math.abs(n);return (n<0?'−':'')+(a>=1e6?(a/1e6).toFixed(a%1e6===0?0:a>=1e7?1:2).replace(/\.?0+$/,'')+'M':a>=1e3?Math.round(a/1e3)+'k':a)};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTH_FULL=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const dlabel=d=>{const x=typeof d==='string'?pd(d.length<11?d+' 00:00':d):d;const diff=Math.round((new Date(x.getFullYear(),x.getMonth(),x.getDate())-TODAY0)/DAY);if(diff===0)return'Today';if(diff===-1)return'Yesterday';if(diff===1)return'Tomorrow';return `${DOW[x.getDay()]} ${x.getDate()} ${MON[x.getMonth()]}`};
+const shortDate=s=>{const x=pd(s.length<11?s+' 00:00':s);return `${x.getDate()} ${MON[x.getMonth()]} ${x.getFullYear()}`};
+const hm=s=>s.slice(11,16);
+const daysUntil=s=>Math.round((pd(s+' 00:00')-TODAY0)/DAY);
+const cap=s=>s?s.charAt(0).toUpperCase()+s.slice(1):s;
+const titleCase=s=>s?s.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()).trim():s;
+const stamp=()=>{const n=new Date();return `2026-10-02 ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`};
+let NID=500;const nid=p=>p+(++NID);
+let seed=11;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+
+/* ---------- sample data ---------- */
+const S={
+ user:{name:'Sarah',full:'Sarah Nambi',role:'Secondary school teacher · Ntinda'},
+ cats:[
+  {id:'food',name:'Food & Groceries',c:'#D2901A',ic:'bowl',budget:180000},
+  {id:'transport',name:'Transport',c:'#0F8A83',ic:'bike',budget:120000},
+  {id:'utilities',name:'Utilities',c:'#3B76CC',ic:'bolt',budget:140000},
+  {id:'airtime',name:'Airtime & Data',c:'#DD5E37',ic:'signal',budget:40000},
+  {id:'rent',name:'Rent & Housing',c:'#7A5BB0',ic:'house',budget:450000},
+  {id:'school',name:'School Fees',c:'#2F8A5B',ic:'book',budget:600000},
+  {id:'health',name:'Health',c:'#CC4670',ic:'cross',budget:50000},
+  {id:'entertainment',name:'Entertainment',c:'#9367C6',ic:'tv',budget:60000},
+  {id:'savings',name:'Savings',c:'#5B9A3A',ic:'coins',budget:200000},
+  {id:'business',name:'Business',c:'#8D6B42',ic:'bag',budget:0},
+  {id:'family',name:'Family Support',c:'#DD7A22',ic:'people',budget:100000},
+  {id:'personal',name:'Personal Care',c:'#3A9DB6',ic:'scissors',budget:50000},
+  {id:'other',name:'Other',c:'#7C8F8B',ic:'dots',budget:30000},
+ ],
+ accounts:[
+  {id:'mtn',name:'MTN MoMo',type:'Mobile money · auto from SMS',bal:412500,c:'#F5C000',trend:[520,505,610,590,480,470,455,412]},
+  {id:'airtel',name:'Airtel Money',type:'Mobile money · auto from SMS',bal:86000,c:'#D7262E',trend:[60,72,95,120,130,96,96,86]},
+  {id:'bank',name:'Stanbic Bank',type:'Bank · statement import',bal:1840000,c:'#2558B0',trend:[900,880,2330,1800,1820,1850,1850,1840]},
+  {id:'cash',name:'Cash on hand',type:'Adjusted by you',bal:63000,c:'#2F8A5B',trend:[40,110,80,90,70,95,75,63]},
+  {id:'sacco',name:"Teachers' SACCO",type:'SACCO savings',bal:2350000,c:'#8D6B42',trend:[1950,2000,2050,2100,2150,2200,2250,2350]},
+ ],
+ txns:[],
+ bills:[
+  {id:'b1',name:'UMEME (Yaka top-up)',kind:'UMEME',ic:'bolt',amt:95000,due:'2026-10-05',status:'due',note:'Estimate from your last 3 top-ups',shared:true},
+  {id:'b2',name:'NWSC water',kind:'NWSC',ic:'bolt',amt:38000,due:'2026-09-30',status:'due',note:'Account 2041··· Ntinda',shared:true},
+  {id:'b3',name:'Home internet (MTN)',kind:'Internet',ic:'signal',amt:75000,due:'2026-10-08',status:'due',note:'Monthly package',shared:true},
+  {id:'b4',name:'DSTV subscription',kind:'DSTV',ic:'tv',amt:59000,due:'2026-10-14',status:'due',note:'Renews monthly'},
+  {id:'b5',name:'Microfinance loan',kind:'Loan',ic:'wallet',amt:120000,due:'2026-10-15',status:'due',note:'Instalment 7 of 12'},
+  {id:'b6',name:'School fees · Ethan (P.4)',kind:'School fees',ic:'book',amt:350000,due:'2026-10-20',status:'due',note:'Term 3 balance',shared:true},
+  {id:'b7',name:'SACCO contribution',kind:'SACCO',ic:'coins',amt:200000,due:'2026-10-25',status:'due',note:"Teachers' SACCO monthly"},
+  {id:'b8',name:'Rent · Mr. Kizza',kind:'Rent',ic:'house',amt:450000,due:'2026-10-28',status:'due',note:'Pay by mobile money',shared:true},
+  {id:'b9',name:'Data bundle (MTN)',kind:'Internet',ic:'signal',amt:35000,due:'2026-10-25',status:'paid',paidOn:'2026-09-25',auto:true,note:'30-day bundle'},
+  {id:'b10',name:'Health insurance',kind:'Insurance',ic:'shield',amt:30000,due:'2026-11-01',status:'due',note:'Monthly premium'},
+ ],
+ loans:[
+  {id:'l1',dir:'out',who:'James Okello',amt:50000,paid:0,date:'2026-10-02',due:'2026-10-31',note:'Rent top-up',auto:true},
+  {id:'l2',dir:'out',who:'Brenda Atim',amt:120000,paid:40000,date:'2026-08-14',due:'2026-09-30',note:'School shoes for her son'},
+  {id:'l3',dir:'in',who:'Aunt Florence',amt:200000,paid:0,date:'2026-07-20',due:'2026-11-15',note:'Helped with July expenses'},
+  {id:'l4',dir:'out',who:'Moses Ssali',amt:30000,paid:30000,date:'2026-08-02',due:'2026-08-30',note:'Transport money'},
+ ],
+ goals:[
+  {id:'g1',name:'School fees · Term 1, 2027',target:1200000,saved:540000,date:'2027-01-31',rate:100000,auto:'10% of every deposit',c:'#2F8A5B'},
+  {id:'g2',name:'New phone',target:1800000,saved:450000,date:'2027-03-31',rate:200000,auto:'UGX 50,000 every Friday',c:'#3B76CC'},
+  {id:'g3',name:'Land deposit · Mukono',target:8000000,saved:1900000,date:'2027-12-31',rate:400000,auto:'Manual',c:'#8D6B42'},
+ ],
+ inv:[
+  {id:'i1',type:'sacco',name:"Teachers' SACCO shares",detail:'60 shares · dividend UGX 72,000 paid in March',invested:600000,value:600000},
+  {id:'i2',type:'tbill',name:'364-day Treasury bill',detail:'Face value UGX 2,000,000 · matures 18 Mar 2027',invested:1860000,value:1925000,maturity:'2027-03-18'},
+  {id:'i3',type:'unit',name:'Money market fund · UAP Old Mutual',detail:'9,250 units',invested:1100000,value:1184000},
+  {id:'i4',type:'stock',name:'MTN Uganda (USE)',detail:'5,000 shares',invested:1000000,value:1200000},
+  {id:'i5',type:'fd',name:'Fixed deposit · Stanbic, 6 months',detail:'Matures 14 Feb 2027',invested:1000000,value:1035000,maturity:'2027-02-14'},
+ ],
+ routes:[
+  {id:'r1',city:'Kampala',a:'City Centre',b:'Ntinda',boda:[3000,4000],taxi:[1500,2000]},
+  {id:'r2',city:'Kampala',a:'City Centre',b:'Kira',boda:[7000,9000],taxi:[2500,3000]},
+  {id:'r3',city:'Kampala',a:'City Centre',b:'Najjera',boda:[6000,8000],taxi:[2500,3000]},
+  {id:'r4',city:'Kampala',a:'City Centre',b:'Kyanja',boda:[5000,7000],taxi:[2000,2500]},
+  {id:'r5',city:'Kampala',a:'City Centre',b:'Entebbe',boda:[25000,35000],taxi:[5000,7000]},
+  {id:'r6',city:'Kampala',a:'City Centre',b:'Mukono (Jinja Rd)',boda:[15000,20000],taxi:[3000,4000]},
+  {id:'r7',city:'Kampala',a:'City Centre',b:'Wakiso',boda:[10000,12000],taxi:[2500,3000]},
+  {id:'r8',city:'Kampala',a:'City Centre',b:'Gayaza',boda:[12000,15000],taxi:[3000,3500]},
+  {id:'r9',city:'Kampala',a:'City Centre',b:'Kasangati',boda:[8000,10000],taxi:[2500,3000]},
+  {id:'r10',city:'Kampala',a:'Makerere',b:'Wandegeya',boda:[1000,2000],taxi:null},
+  {id:'r11',city:'Kampala',a:'Wandegeya',b:'City Centre',boda:[2000,3000],taxi:[1000,1500]},
+  {id:'r12',city:'Gulu',a:'Gulu town',b:'Laroo',boda:[1000,2000],taxi:null},
+  {id:'r13',city:'Mbarara',a:'Mbarara town',b:'Kakoba',boda:[1000,2000],taxi:null},
+  {id:'r14',city:'Jinja',a:'Jinja town',b:'Bugembe',boda:[2000,3000],taxi:[1000,1500]},
+ ],
+ notifs:[
+  {id:'n1',t:'warn',ic:'alert',title:'Food & Groceries is at 87% of budget',body:'22 days left in this cycle.',when:'Today 18:10',go:'budgets'},
+  {id:'n2',t:'accent',ic:'calendar',title:'UMEME due in 3 days',body:'About UGX 95,000, based on your last top-ups.',when:'Today 15:00',go:'bills'},
+  {id:'n3',t:'accent',ic:'sms',title:'4 transactions logged from SMS today',body:'MTN MoMo · nothing for you to type.',when:'Today 17:31',go:'activity'},
+  {id:'n4',t:'bad',ic:'alert',title:'Airtime & Data is over budget',body:'UGX 45,000 spent of UGX 40,000.',when:'Yesterday',go:'budgets'},
+  {id:'n5',t:'warn',ic:'bike',title:'Fare above the usual range',body:'You paid UGX 8,000 for City Centre → Ntinda. Usual range is UGX 3,000–4,000.',when:'Wed 30 Sep',go:'transport',read:true},
+  {id:'n6',t:'warn',ic:'hand',title:"Brenda's repayment date has passed",body:'UGX 80,000 still outstanding since 30 Sep.',when:'Wed 30 Sep',go:'lending',read:true},
+ ],
+ family:{
+  name:'Nambi household',
+  members:[
+   {n:'Sarah Nambi',r:'Admin · you',init:'SN',inc:1600000,spent:1243000},
+   {n:'David Mugisha',r:'Member',init:'DM',inc:1900000,spent:986000},
+   {n:'Grace Nambi',r:'Student sub-account · Makerere',init:'GN',sub:true},
+  ],
+  student:{allowance:300000,spent:142000,cats:[['Food',78000,'#D2901A'],['Transport',31000,'#0F8A83'],['Airtime & data',18000,'#DD5E37'],['Books & printing',15000,'#3B76CC']]},
+  goal:{name:'Christmas in Lira',target:1500000,saved:620000},
+  group:{name:'Ntinda Teachers Savings Group',members:12,contrib:50000,pot:2400000,next:'Your turn to receive the pot: 30 Oct'},
+  privateMine:true,
+ },
+ settings:{lock:true,bio:true,sms:true,ai:true,backup:false,push:true,wa:true,threshold:80,theme:'system',lang:'en'},
+ ui:{tx:'all',acct:'all',q:'',range:12,lendTab:'open',invTab:'all'},
+ chat:[],wa:[],
+};
+
+/* transactions: [date, acct, kind, amount, cat, title, src, extra] */
+[
+ ['2026-09-25 07:00','bank','in',1450000,'income','Salary · Ministry of Education','sms'],
+ ['2026-09-25 08:10','mtn','out',4000,'transport','Boda · City Centre → Ntinda','sms',{route:'r1',mode:'boda'}],
+ ['2026-09-25 19:00','mtn','out',35000,'airtime','MTN data bundle · 30 days','sms'],
+ ['2026-09-26 10:20','cash','out',26000,'food','Nakasero market · vegetables & matooke','manual'],
+ ['2026-09-26 13:00','mtn','out',100000,'family','Sent to Mum · Lira','sms'],
+ ['2026-09-26 14:02','mtn','in',150000,'income','Holiday tuition · Nakato family','sms'],
+ ['2026-09-27 11:00','bank','out',84500,'food','Capital Shoppers, Ntinda','receipt'],
+ ['2026-09-27 14:20','cash','out',6000,'transport','Taxi · Ntinda ↔ Old Taxi Park','manual',{route:'r1',mode:'taxi'}],
+ ['2026-09-27 15:00','cash','out',45000,'personal','Salon · braids','manual'],
+ ['2026-09-28 09:00','bank','out',450000,'rent','Rent · Mr. Kizza','manual'],
+ ['2026-09-28 12:00','mtn','out',100000,'savings','Goal: School fees Term 1','sms'],
+ ['2026-09-28 20:15','mtn','out',18000,'transport','Uber · Acacia Mall → Ntinda','sms'],
+ ['2026-09-29 07:40','mtn','out',4000,'transport','Boda · City Centre → Ntinda','sms',{route:'r1',mode:'boda'}],
+ ['2026-09-29 13:10','cash','out',7000,'food','Lunch · chapati & beans','manual'],
+ ['2026-09-29 19:30','airtel','out',30000,'entertainment','Century Cinemax · Acacia','sms'],
+ ['2026-09-30 07:50','mtn','out',8000,'transport','Boda · City Centre → Ntinda','sms',{route:'r1',mode:'boda'}],
+ ['2026-09-30 17:45','mtn','out',18500,'health','Pharmacy · Ntinda','sms'],
+ ['2026-10-01 07:45','mtn','out',4000,'transport','Boda · City Centre → Ntinda','sms',{route:'r1',mode:'boda'}],
+ ['2026-10-01 12:40','cash','out',4000,'food','Rolex & tea · Wandegeya stall','whatsapp'],
+ ['2026-10-01 16:00','mtn','out',250000,'school',"St. Peter's Primary · Ethan, Term 3",'sms'],
+ ['2026-10-01 18:20','airtel','out',10000,'airtime','Airtel airtime','sms'],
+ ['2026-10-01 19:00','cash','out',12000,'food',"Beans & posho · Grace's stall",'manual'],
+ ['2026-10-02 07:45','mtn','out',4000,'transport','Boda · City Centre → Ntinda','sms',{route:'r1',mode:'boda'}],
+ ['2026-10-02 12:30','cash','out',8000,'food','Rice & beans · school canteen','receipt'],
+ ['2026-10-02 17:30','mtn','lend',50000,'lend','Loan to James Okello','sms'],
+ ['2026-10-02 18:10','cash','out',15000,'food','Matooke & greens · Ntinda market','manual'],
+].forEach(([d,acct,kind,amt,cat,title,src,x])=>S.txns.push({id:nid('t'),d,acct,kind,amt,cat,title,src,...(x||{})}));
+
+const SAMPLE_SMS={
+ mtnSent:'You have sent UGX 50,000 to JAMES OKELLO 256772123456 on 02/10/2026 17:30. Reason: loan. Fee UGX 1,000. Your new balance: UGX 412,500. Financial Transaction Id: 31842209176.',
+ mtnPaid:'You have paid UGX 4,000 to BODA SAFE RIDES on 02/10/2026 07:45. Fee UGX 0. Your new balance: UGX 463,500. Transaction Id: 31840077120.',
+ mtnRecv:'You have received UGX 150,000 from NAKATO SHARON 256701556677 on 26/09/2026 14:02. Reason: holiday tuition. Your new balance: UGX 562,500. Financial Transaction Id: 31790012435.',
+ airtel:'PAID UGX 10,000 to AIRTEL AIRTIME on 01/10/2026 18:20. TID 1029384756. Bal UGX 86,000. Airtel Money',
+ umeme:'You have paid UGX 95,000 to UMEME YAKA 04231187654 on 05/10/2026 09:12. Token: 4821 0937 1182 4410. Your new balance: UGX 317,500. Transaction Id: 31851100234.',
+};
+S.txns.forEach(t=>{ if(t.src==='sms'&&t.title==='Loan to James Okello') t.sms=SAMPLE_SMS.mtnSent; if(t.src==='sms'&&t.d==='2026-10-02 07:45') t.sms=SAMPLE_SMS.mtnPaid; if(t.d==='2026-09-26 14:02') t.sms=SAMPLE_SMS.mtnRecv; if(t.d==='2026-10-01 18:20') t.sms=SAMPLE_SMS.airtel; });
+
+const HIST={labels:['Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep'],inc:[1450,1450,1520,1450,1450,1600,1450,1450,1600,1450,1520,1600].map(x=>x*1000),exp:[1380,1520,1690,1290,1330,1410,1310,1390,1520,1280,1460,1405].map(x=>x*1000),nw:[9.10,9.22,9.01,9.30,9.55,9.71,9.88,10.02,9.98,10.21,10.43]};
+const UMEME_HIST=[82000,88000,95000];
+
+/* ---------- derived ---------- */
+const cat=id=>S.cats.find(c=>c.id===id);
+const acct=id=>S.accounts.find(a=>a.id===id);
+const catOf=t=>t.kind==='in'?{name:'Income',c:'var(--good)',ic:'in'}:t.kind==='lend'?{name:'Lending',c:'var(--warn)',ic:'hand'}:(cat(t.cat)||cat('other'));
+const inCycle=t=>{const d=pd(t.d);return d>=CYCLE_START&&d<=CYCLE_END};
+const expenses=()=>S.txns.filter(t=>t.kind==='out'&&inCycle(t));
+const catSpent=id=>expenses().filter(t=>t.cat===id).reduce((a,t)=>a+t.amt,0);
+const cycleSpent=()=>expenses().reduce((a,t)=>a+t.amt,0);
+const cycleIncome=()=>S.txns.filter(t=>t.kind==='in'&&inCycle(t)).reduce((a,t)=>a+t.amt,0);
+const totalBudget=()=>S.cats.reduce((a,c)=>a+c.budget,0);
+const todaySpent=()=>S.txns.filter(t=>t.kind==='out'&&pd(t.d)>=TODAY0).reduce((a,t)=>a+t.amt,0);
+const owedToMe=()=>S.loans.filter(l=>l.dir==='out').reduce((a,l)=>a+l.amt-l.paid,0);
+const iOwe=()=>S.loans.filter(l=>l.dir==='in').reduce((a,l)=>a+l.amt-l.paid,0);
+const invTotal=()=>S.inv.reduce((a,x)=>a+x.value,0);
+const acctTotal=()=>S.accounts.reduce((a,x)=>a+x.bal,0);
+const netWorth=()=>acctTotal()+invTotal()+owedToMe()-iOwe();
+const route=id=>S.routes.find(r=>r.id===id);
+const routeName=r=>`${r.a} → ${r.b}`;
+function fareVerdict(r,mode,amt){const rg=r&&r[mode];if(!rg)return null;const[lo,hi]=rg;if(amt>hi*1.25)return{k:'bad',label:'Well above usual',lo,hi};if(amt>hi)return{k:'warn',label:'A bit high',lo,hi};if(amt<lo)return{k:'good',label:'Below usual',lo,hi};return{k:'good',label:'Normal fare',lo,hi}}
+const monthsTo=s=>Math.max(1,(pd(s+' 00:00')-TODAY0)/(30.44*DAY));
+const goalNeed=g=>Math.max(0,(g.target-g.saved)/monthsTo(g.date));
+const status=pct=>pct>=1?'bad':pct>=S.settings.threshold/100?'warn':'good';
+const barColor=k=>k==='bad'?'var(--bad)':k==='warn'?'var(--warn)':'var(--accent)';
+
+/* ---------- parsing ---------- */
+const KEYWORDS=[
+ ['transport',/boda|taxi|uber|safeboda|faras|fuel|petrol|bus|ride/i],
+ ['utilities',/umeme|yaka|nwsc|water|electric|token/i],
+ ['airtime',/airtime|data|bundle|internet/i],
+ ['school',/school|fees|tuition|uniform|term/i],
+ ['health',/pharmacy|clinic|hospital|drug|medic/i],
+ ['entertainment',/dstv|gotv|cinema|movie|cinemax|concert|event/i],
+ ['savings',/sacco|saving|goal/i],
+ ['family',/\bmum\b|\bmom\b|\bdad\b|mother|father|sister|brother|\bhome\b|family|aunt|uncle/i],
+ ['personal',/salon|barber|braid|hair|cloth|toilet|soap/i],
+ ['rent',/rent|landlord/i],
+ ['business',/stock|supplier|wholesale|kikuubo/i],
+ ['food',/supermarket|market|food|posho|beans|rolex|matooke|lunch|supper|breakfast|rice|canteen|chips|chapati|meat|fish|groceries|shoppers|fresh mart|sugar|bread|milk/i],
+];
+const guessCat=s=>{for(const[c,re]of KEYWORDS)if(re.test(s))return c;return'other'};
+function parseSMS(raw){
+ const s=raw.replace(/\s+/g,' ').trim();
+ const am=s.match(/UGX\s?([\d,]+(?:\.\d+)?)/i);if(!am)return null;
+ const amt=+am[1].replace(/,/g,'');
+ let kind='out',type='Sent';
+ if(/received/i.test(s)){kind='in';type='Received'}
+ else if(/withdr[ae]w/i.test(s))type='Withdrawn';
+ else if(/\bpaid\b|payment/i.test(s))type='Paid to merchant';
+ else if(/deposit/i.test(s)){kind='in';type='Deposited'}
+ const party=(s.match(/\b(?:to|from)\s+([A-Z][A-Z0-9&.' -]{2,}?)(?=\s+(?:256)?\d{6,}|\s+on\b|[.,]|$)/)||[])[1];
+ const dm=s.match(/(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}:\d{2}))?/);
+ const date=dm?`${dm[3]}-${dm[2]}-${dm[1]} ${dm[4]||'12:00'}`:stamp();
+ const bal=(s.match(/(?:new balance|balance|\bbal)\s*(?:is|:)?\s*UGX\s?([\d,]+)/i)||[])[1];
+ const ref=(s.match(/(?:transaction id|txn id|\btid|reference)\s*(?:no\.?|:)?\s*([A-Z0-9]{6,})/i)||[])[1];
+ const reason=(s.match(/reason:\s*([^.]+)/i)||[])[1];
+ const fee=(s.match(/fee(?: was| of)?\s*:?\s*UGX\s?([\d,]+)/i)||[])[1];
+ const provider=/airtel/i.test(s)?'airtel':/stanbic|bank|a\/c/i.test(s)?'bank':'mtn';
+ const isLoan=kind==='out'&&/\b(loan|pay (?:you|me) back|borrow)/i.test(s);
+ const c=kind==='in'?'income':isLoan?'lend':guessCat(`${party||''} ${reason||''}`);
+ return{amt,kind:isLoan?'lend':kind,type,party:titleCase(party)||'Unknown',date,bal,ref,reason,fee,provider,cat:c,isLoan};
+}
+function parseNote(s){
+ let amt=0;
+ for(const x of s.matchAll(/(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)\s*(k|m)?(?![a-z])/gi)){let v=parseFloat(x[1].replace(/,/g,''));if(/k/i.test(x[2]||''))v*=1e3;if(/m/i.test(x[2]||''))v*=1e6;if(v>amt)amt=v}
+ const title=s.replace(/,?\s*(?:ugx\s*)?(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)\s*(k|m)?(?![a-z])\s*(\/=|\/-|shs|ugx)?/ig,'').replace(/\s+/g,' ').trim();
+ return{amt:Math.round(amt),cat:guessCat(s),title:cap(title)||'Cash expense'};
+}
+
+/* ---------- charts ---------- */
+function spark(vals,w,h,color,fill){
+ const mn=Math.min(...vals),mx=Math.max(...vals),r=mx-mn||1,st=w/(vals.length-1);
+ const pts=vals.map((v,i)=>[i*st,h-3-((v-mn)/r)*(h-8)]);
+ const line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join('');
+ const last=pts[pts.length-1];
+ return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none" aria-hidden="true" style="display:block;overflow:visible">${fill?`<path d="${line}L${w} ${h}L0 ${h}Z" fill="${color}" opacity=".16"/>`:''}<path d="${line}" fill="none" stroke="${color}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${last[0]}" cy="${last[1]}" r="3" fill="${color}"/></svg>`;
+}
+function donut(segs,size,thick,center){
+ const r=(size-thick)/2,C=2*Math.PI*r,tot=segs.reduce((a,s)=>a+s.v,0)||1;let acc=0;
+ const arcs=segs.map(s=>{const len=s.v/tot*C;const el=`<circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${s.c}" stroke-width="${thick}" stroke-dasharray="${Math.max(0,len-2.5)} ${C}" stroke-dashoffset="${-acc}" transform="rotate(-90 ${size/2} ${size/2})"/>`;acc+=len;return el}).join('');
+ return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="max-width:100%"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="${thick}"/>${arcs}${center||''}</svg>`;
+}
+function ring(pct,size,thick,color,label,sub){
+ const r=(size-thick)/2,C=2*Math.PI*r,len=Math.min(pct,1)*C;
+ return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="${thick}"/><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${thick}" stroke-linecap="round" stroke-dasharray="${len} ${C}" transform="rotate(-90 ${size/2} ${size/2})"/><text x="50%" y="48%" text-anchor="middle" style="font:800 22px var(--f-display);fill:var(--ink)">${label}</text><text x="50%" y="64%" text-anchor="middle" style="font:600 10.5px var(--f-body);fill:var(--muted)">${sub}</text></svg>`;
+}
+function barsChart(labels,a,b){
+ const W=340,H=190,L=34,B=22,T=8,mx=Math.ceil(Math.max(...a,...b)/500000)*500000,ih=H-B-T,gw=(W-L)/labels.length,bw=Math.min(10,gw/3.2);
+ const y=v=>T+ih-(v/mx)*ih;let g='';
+ for(let v=0;v<=mx;v+=500000)g+=`<line x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-6}" y="${y(v)+3}" text-anchor="end">${v?kf(v):'0'}</text>`;
+ labels.forEach((l,i)=>{const cx=L+gw*i+gw/2;g+=`<rect x="${cx-bw-1}" y="${y(a[i])}" width="${bw}" height="${T+ih-y(a[i])}" rx="2.5" fill="var(--accent)"><title>${l} income ${ugx(a[i])}</title></rect><rect x="${cx+1}" y="${y(b[i])}" width="${bw}" height="${T+ih-y(b[i])}" rx="2.5" fill="var(--sun)"><title>${l} spending ${ugx(b[i])}</title></rect><text x="${cx}" y="${H-6}" text-anchor="middle">${l}</text>`});
+ return `<svg class="chart" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Income versus spending by month">${g}</svg>`;
+}
+function lineChart(labels,vals){
+ const W=340,H=170,L=36,B=22,T=12;const mn=Math.floor(Math.min(...vals)*2)/2,mx=Math.ceil(Math.max(...vals)*2)/2,ih=H-B-T,st=(W-L-8)/(vals.length-1);
+ const y=v=>T+ih-((v-mn)/(mx-mn))*ih;const pts=vals.map((v,i)=>[L+i*st,y(v)]);
+ const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join('');let g='';
+ for(let v=mn;v<=mx+1e-9;v+=0.5)g+=`<line x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${y(v)+3}" text-anchor="end">${v.toFixed(1)}M</text>`;
+ labels.forEach((l,i)=>{if(i%2===0||i===labels.length-1)g+=`<text x="${L+i*st}" y="${H-6}" text-anchor="middle">${l}</text>`});
+ const lp=pts[pts.length-1];
+ return `<svg class="chart" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Net worth over 12 months">${g}<path d="${d}L${lp[0]} ${T+ih}L${L} ${T+ih}Z" fill="var(--accent)" opacity=".12"/><path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round"/><circle cx="${lp[0]}" cy="${lp[1]}" r="4.5" fill="var(--sun)" stroke="var(--surface)" stroke-width="2"/></svg>`;
+}
+function dailyTotals(){
+ const m={};S.txns.forEach(t=>{if(t.kind!=='out')return;const k=t.d.slice(0,10);m[k]=(m[k]||0)+t.amt});
+ seed=23;for(let d=new Date(CYCLE_START-1*DAY);d>pd('2026-08-20 00:00');d=new Date(d-DAY)){const k=d.toISOString().slice(0,10);const r=rnd();m[k]=r<.12?0:Math.round((r<.85?8000+rnd()*45000:90000+rnd()*160000)/500)*500}
+ return m;
+}
+
+/* ---------- UI primitives ---------- */
+const srcTag=s=>({sms:'SMS',receipt:'Receipt',manual:'Manual',whatsapp:'WhatsApp'}[s]||'');
+function txRow(t){const c=catOf(t);const sign=t.kind==='in'?'+':'−';const v=t.route?fareVerdict(route(t.route),t.mode,t.amt):null;
+ return `<button class="tx" data-act="tx" data-arg="${t.id}"><span class="chip" style="--c:${c.c}">${ic(c.ic)}</span><span class="tx-main"><span class="tx-title">${esc(t.title)}</span><span class="tx-sub">${c.name} · ${acct(t.acct).name} <span class="src">${srcTag(t.src)}</span></span></span><span class="tx-amt ${t.kind==='in'?'pos':''}">${sign}${num(t.amt)}${v&&v.k!=='good'?`<small style="color:var(--${v.k==='bad'?'bad':'warn'})">${v.label}</small>`:`<small>${hm(t.d)}</small>`}</span></button>`}
+function acctOptions(sel){return S.accounts.map(a=>`<option value="${a.id}" ${a.id===sel?'selected':''}>${a.name}</option>`).join('')}
+function catOptions(sel){return S.cats.map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${c.name}</option>`).join('')}
+function routeOptions(sel){return `<option value="">No route</option>`+S.routes.map(r=>`<option value="${r.id}" ${r.id===sel?'selected':''}>${r.city==='Kampala'?'':r.city+': '}${routeName(r)}</option>`).join('')}
+function budgetLine(c){const sp=catSpent(c.id),p=c.budget?sp/c.budget:0,k=c.budget?status(p):'good';
+ return `<button class="tx" data-act="editBudget" data-arg="${c.id}" style="grid-template-columns:40px 1fr"><span class="chip" style="--c:${c.c}">${ic(c.ic)}</span><span class="tx-main" style="gap:6px"><span class="between"><span class="tx-title">${c.name}</span><span class="small tnum" style="font-weight:600">${num(sp)}<span class="muted"> / ${c.budget?kf(c.budget):'no limit'}</span></span></span>${c.budget?`<span class="bar"><i style="width:${Math.min(100,p*100)}%;background:${barColor(k)}"></i></span><span class="between xs"><span class="muted">${p>=1?`Over by ${num(sp-c.budget)}`:`${num(c.budget-sp)} left`}</span>${k!=='good'?`<span class="pill ${k}">${Math.round(p*100)}%</span>`:`<span class="muted">${Math.round(p*100)}%</span>`}</span>`:`<span class="xs muted">Tap to set a monthly limit</span>`}</span></button>`}
+
+/* ---------- screens ---------- */
+const TITLES={home:'Home',activity:'Activity',advisor:'Advisor',more:'More',budgets:'Budgets',bills:'Bills & reminders',lending:'Lending & borrowing',goals:'Savings goals',invest:'Investments',transport:'Transport fares',family:'Family & groups',whatsapp:'WhatsApp bot',scan:'Scan a receipt',analytics:'Analytics & reports',settings:'Settings & privacy',notifs:'Notifications',accounts:'Accounts'};
+const ROOTS=['home','activity','advisor','more'];
+const SCREENS={},MOUNT={};
+
+SCREENS.home=()=>{
+ const nw=netWorth(),prev=HIST.nw[HIST.nw.length-1]*1e6,delta=nw-prev;
+ const spent=cycleSpent(),bud=totalBudget(),p=spent/bud,pace=DAY_OF_CYCLE/CYCLE_DAYS;
+ const food=cat('food'),fp=catSpent('food')/food.budget;
+ const bills=S.bills.filter(b=>b.status!=='paid').sort((a,b)=>a.due.localeCompare(b.due)).slice(0,3);
+ const recent=S.txns.slice().sort((a,b)=>pd(b.d)-pd(a.d)).slice(0,5);
+ return `
+ <section class="hero" aria-label="Net worth">
+  <div class="between"><span class="eyebrow">Net worth · all accounts</span><span class="ghost-pill">Sample data</span></div>
+  <div class="hero-num"><small>UGX</small>${num(nw)}</div>
+  <div class="hero-delta"><b>${delta>=0?'▲':'▼'} ${num(delta)}</b> (${(delta/prev*100).toFixed(1)}%) since last cycle</div>
+  <div class="hero-spark">${spark([...HIST.nw,nw/1e6],300,54,'var(--sun)',true)}</div>
+  <div class="hero-foot"><div><span>Spent today</span><b>${num(todaySpent())}</b></div><div><span>In this cycle</span><b>${num(cycleIncome())}</b></div><div><span>Cycle</span><b>Day ${DAY_OF_CYCLE} of ${CYCLE_DAYS}</b></div></div>
+ </section>
+
+ <div class="sec-head"><h2>Accounts</h2><button class="link" data-go="accounts">See all</button></div>
+ <div class="rail">${S.accounts.map(a=>`<button class="acct" data-act="acct" data-arg="${a.id}"><span class="acct-head"><span class="acct-dot" style="background:${a.c}"></span>${a.name}</span><span class="acct-type">${a.type.split(' · ')[0]}</span><span class="acct-bal">${num(a.bal)}</span><div style="margin-top:6px">${spark(a.trend,130,26,'var(--accent)')}</div></button>`).join('')}<button class="acct add" data-act="addAccount">${ic('plus')}Add account</button></div>
+
+ <div class="quick">
+  <button class="qa" data-act="add"><span class="qi">${ic('plus',22)}</span>Log expense</button>
+  <button class="qa" data-go="scan"><span class="qi">${ic('receipt',22)}</span>Scan receipt</button>
+  <button class="qa" data-go="transport"><span class="qi">${ic('bike',22)}</span>Check fare</button>
+  <button class="qa" data-go="lending"><span class="qi">${ic('hand',22)}</span>Lend / borrow</button>
+ </div>
+
+ <button class="card stack" data-go="budgets" style="text-align:left;gap:10px">
+  <div class="between"><span class="eyebrow">This cycle's budget</span><span class="pill ${p>pace+.15?'warn':'good'}">${DAYS_LEFT} days left</span></div>
+  <div class="between" style="align-items:baseline"><span style="font-family:var(--f-display);font-weight:800;font-size:24px" class="tnum">${num(spent)}</span><span class="muted small tnum">of ${num(bud)}</span></div>
+  <div class="bar thick"><i style="width:${Math.min(100,p*100)}%"></i><span class="pace" style="left:${pace*100}%"></span></div>
+  <span class="xs muted">The line marks where you'd be at an even pace. Rent and school fees went out early this cycle.</span>
+ </button>
+
+ <div class="insight">${ic('sparkle')}<div class="grow"><b style="font-size:14px">Food is running ahead</b><p class="small" style="margin-top:2px">You've used ${Math.round(fp*100)}% of your food budget with ${DAYS_LEFT} days to go. Market and canteen spending is about 15% above last cycle.</p><button class="link small" style="margin-top:6px" data-act="askAdvisor" data-arg="Am I on track this month?">Ask the advisor →</button></div></div>
+
+ <div class="sec-head"><h2>Coming up</h2><button class="link" data-go="bills">All bills</button></div>
+ <div class="list">${bills.map(billRow).join('')}</div>
+
+ <div class="sec-head"><h2>Recent activity</h2><button class="link" data-go="activity">See all</button></div>
+ <div class="list">${recent.map(txRow).join('')}</div>`;
+};
+
+SCREENS.accounts=()=>`
+ <div class="card"><div class="between"><span class="eyebrow">Combined balance</span><span class="pill accent">${S.accounts.length} accounts</span></div><div style="font-family:var(--f-display);font-weight:800;font-size:28px;margin-top:4px" class="tnum">${ugx(acctTotal())}</div><p class="xs muted" style="margin-top:4px">Plus ${ugx(invTotal())} in investments and ${ugx(owedToMe()-iOwe())} net lending = net worth ${ugx(netWorth())}.</p></div>
+ <div class="list">${S.accounts.map(a=>`<button class="tx" data-act="acct" data-arg="${a.id}"><span class="chip" style="--c:${a.c}">${ic(a.id==='cash'?'wallet':a.id==='sacco'?'coins':a.id==='bank'?'house':'sms')}</span><span class="tx-main"><span class="tx-title">${a.name}</span><span class="tx-sub">${a.type}</span></span><span class="tx-amt">${num(a.bal)}</span></button>`).join('')}</div>
+ <button class="btn block" data-act="addAccount">${ic('plus')}Add an account</button>
+ <div class="note">${ic('info')}<span>Mobile money balances update from the confirmation SMS. Bank balances come from a statement you import. Cash is whatever you tell Kasente.</span></div>`;
+
+SCREENS.activity=()=>{const f=S.ui;const cnt=S.txns.filter(t=>t.src==='sms'&&inCycle(t)).length;
+ return `
+ <div class="search">${ic('search',18)}<input id="q" type="search" placeholder="Search transactions" value="${esc(f.q)}" data-live="q" aria-label="Search transactions"></div>
+ <div class="seg" role="tablist">${[['all','All'],['out','Money out'],['in','Money in']].map(([k,l])=>`<button class="${f.tx===k?'on':''}" data-act="txf" data-arg="${k}">${l}</button>`).join('')}</div>
+ <div class="chips"><button class="chipbtn ${f.acct==='all'?'on':''}" data-act="acf" data-arg="all">All accounts</button>${S.accounts.map(a=>`<button class="chipbtn ${f.acct===a.id?'on':''}" data-act="acf" data-arg="${a.id}"><span class="acct-dot" style="background:${a.c}"></span>${a.name}</button>`).join('')}</div>
+ <button class="note" data-act="smsTest" style="text-align:left">${ic('sms')}<span class="grow"><b>${cnt} transactions read from SMS this cycle.</b> Only MTN, Airtel and bank confirmations are read. <span class="link">Try the SMS reader →</span></span></button>
+ <div id="txlist" class="stack">${txListHTML()}</div>`};
+function txListHTML(){const f=S.ui;let l=S.txns.slice().sort((a,b)=>pd(b.d)-pd(a.d));
+ if(f.tx==='out')l=l.filter(t=>t.kind!=='in');if(f.tx==='in')l=l.filter(t=>t.kind==='in');
+ if(f.acct!=='all')l=l.filter(t=>t.acct===f.acct);
+ if(f.q){const q=f.q.toLowerCase();l=l.filter(t=>(t.title+' '+catOf(t).name+' '+acct(t.acct).name).toLowerCase().includes(q))}
+ if(!l.length)return `<div class="card muted small" style="text-align:center">No transactions match. Try another word or clear the filters.</div>`;
+ const g={};l.forEach(t=>{(g[t.d.slice(0,10)]=g[t.d.slice(0,10)]||[]).push(t)});
+ return Object.entries(g).map(([d,ts])=>{const out=ts.filter(t=>t.kind!=='in').reduce((a,t)=>a+t.amt,0);return `<div class="day-head"><span>${dlabel(d)}</span><span class="tnum">${out?'−'+num(out):''}</span></div><div class="list">${ts.map(txRow).join('')}</div>`}).join('')}
+
+SCREENS.budgets=()=>{const sp=cycleSpent(),b=totalBudget(),p=sp/b,pace=DAY_OF_CYCLE/CYCLE_DAYS;
+ const over=S.cats.filter(c=>c.budget&&catSpent(c.id)>c.budget),warn=S.cats.filter(c=>c.budget&&catSpent(c.id)/c.budget>=S.settings.threshold/100&&catSpent(c.id)<=c.budget);
+ return `
+ <div class="card row" style="gap:16px">${ring(p,120,12,p>1?'var(--bad)':'var(--accent)',Math.round(p*100)+'%','of budget')}<div class="grow stack" style="gap:6px"><span class="eyebrow">25 Sep – 24 Oct</span><span class="tnum" style="font-family:var(--f-display);font-weight:800;font-size:22px">${num(sp)}</span><span class="small muted tnum">of ${ugx(b)} · ${DAYS_LEFT} days left</span><span class="xs muted">Even pace today would be ${Math.round(pace*100)}%.</span></div></div>
+ ${over.length?`<div class="note bad">${ic('alert')}<span><b>${over.map(c=>c.name).join(', ')}</b> ${over.length>1?'are':'is'} over budget.</span></div>`:''}
+ ${warn.length?`<div class="note warn">${ic('bell')}<span>${warn.map(c=>`<b>${c.name}</b>`).join(', ')} passed your ${S.settings.threshold}% alert.</span></div>`:''}
+ <div class="sec-head"><h2>Categories</h2><button class="link" data-act="addCat">New category</button></div>
+ <div class="list">${S.cats.map(budgetLine).join('')}</div>
+ <p class="xs muted" style="padding:0 4px">Alerts fire at ${S.settings.threshold}% and 100% of each limit. Change the threshold in Settings.</p>`};
+
+function billRow(b){const d=daysUntil(b.due);let pill;
+ if(b.status==='paid')pill=`<span class="pill good">${ic('check',12)} Paid ${b.paidOn?shortDate(b.paidOn).slice(0,-5):''}</span>`;
+ else if(d<0)pill=`<span class="pill bad">${-d} day${d===-1?'':'s'} late</span>`;
+ else if(d<=3)pill=`<span class="pill warn">${d===0?'Due today':`In ${d} day${d===1?'':'s'}`}</span>`;
+ else pill=`<span class="pill">${dlabel(b.due)}</span>`;
+ return `<button class="bill" data-act="bill" data-arg="${b.id}"><span class="chip" style="--c:${b.status==='paid'?'var(--good)':d<0?'var(--bad)':'var(--accent)'}">${ic(b.ic)}</span><span class="tx-main"><span class="tx-title">${esc(b.name)}</span><span class="tx-sub tnum">~${ugx(b.amt)}${b.auto?' · matched from SMS':''}</span></span>${pill}</button>`}
+SCREENS.bills=()=>{
+ const due=S.bills.filter(b=>b.status!=='paid').sort((a,b)=>a.due.localeCompare(b.due)),paid=S.bills.filter(b=>b.status==='paid');
+ const late=due.filter(b=>daysUntil(b.due)<0),soon=due.filter(b=>daysUntil(b.due)>=0);
+ const total=soon.filter(b=>b.due<='2026-10-24').reduce((a,b)=>a+b.amt,0);
+ const first=new Date(2026,9,1),lead=(first.getDay()+6)%7;
+ let cal=['M','T','W','T','F','S','S'].map(d=>`<span class="dow">${d}</span>`).join('');
+ for(let i=0;i<lead;i++)cal+='<span></span>';
+ for(let d=1;d<=31;d++){const ds=`2026-10-${String(d).padStart(2,'0')}`;const bs=S.bills.filter(b=>b.due===ds);const cls=['d',d===2?'today':'',bs.length?'has':'',bs.some(b=>b.status==='paid')?'paid':'',d<2?'muted':''].join(' ');cal+=`<span class="${cls}" title="${bs.map(b=>b.name).join(', ')}">${d}</span>`}
+ return `
+ <div class="stat3"><div class="stat"><span>Due by 24 Oct</span><b>${kf(total)}</b></div><div class="stat"><span>Late</span><b style="color:${late.length?'var(--bad)':'inherit'}">${late.length}</b></div><div class="stat"><span>Paid</span><b>${paid.length}</b></div></div>
+ <div class="card"><div class="between" style="margin-bottom:10px"><b>October 2026</b><span class="xs muted">Dots mark due dates</span></div><div class="cal">${cal}</div></div>
+ ${late.length?`<div class="sec-head"><h2>Late</h2></div><div class="list">${late.map(billRow).join('')}</div>`:''}
+ <div class="sec-head"><h2>Upcoming</h2><button class="link" data-act="addBill">Add bill</button></div>
+ <div class="list">${soon.map(billRow).join('')}</div>
+ <div class="sec-head"><h2>Paid this cycle</h2></div>
+ <div class="list">${paid.map(billRow).join('')}</div>
+ <div class="note">${ic('bell')}<span>Reminders arrive 3 days and 1 day before each due date by push${S.settings.wa?' and WhatsApp':''}. A bill marks itself paid when Kasente sees the matching payment SMS.</span></div>`};
+
+SCREENS.lending=()=>{const tab=S.ui.lendTab;
+ const list=S.loans.filter(l=>tab==='open'?l.paid<l.amt:l.paid>=l.amt).sort((a,b)=>a.due.localeCompare(b.due));
+ return `
+ <div class="stat3"><div class="stat"><span>Owed to you</span><b style="color:var(--good)">${kf(owedToMe())}</b></div><div class="stat"><span>You owe</span><b style="color:var(--bad)">${kf(iOwe())}</b></div><div class="stat"><span>Net</span><b>${kf(owedToMe()-iOwe())}</b></div></div>
+ <div class="seg">${[['open','Outstanding'],['done','Settled']].map(([k,l])=>`<button class="${tab===k?'on':''}" data-act="lendTab" data-arg="${k}">${l}</button>`).join('')}</div>
+ <div class="list">${list.length?list.map(l=>{const left=l.amt-l.paid,d=daysUntil(l.due),p=l.paid/l.amt;
+  return `<button class="tx" data-act="loan" data-arg="${l.id}" style="grid-template-columns:40px 1fr auto;align-items:start"><span class="avatar" style="${l.dir==='in'?'background:var(--bad-soft);color:var(--bad)':''}">${l.who.split(' ').map(x=>x[0]).join('').slice(0,2)}</span><span class="tx-main" style="gap:4px"><span class="tx-title">${esc(l.who)}</span><span class="tx-sub">${l.dir==='out'?'Owes you':'You owe'} · ${esc(l.note||'')}</span>${l.paid>0&&left>0?`<span class="bar" style="margin-top:4px"><i style="width:${p*100}%;background:var(--good)"></i></span><span class="xs muted">${num(l.paid)} of ${num(l.amt)} repaid</span>`:''}</span><span style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="tx-amt" style="color:${l.dir==='out'?'var(--good)':'var(--bad)'}">${num(left||l.amt)}</span>${left<=0?'<span class="pill good">Settled</span>':d<0?`<span class="pill bad">${-d}d late</span>`:`<span class="pill">Due ${dlabel(l.due)}</span>`}</span></button>`}).join(''):`<div class="card muted small" style="text-align:center;border:0">Nothing here yet.</div>`}</div>
+ <button class="btn block primary" data-act="addLoan">${ic('plus')}Record money lent or borrowed</button>
+ <div class="note">${ic('shield')}<span>Reminders go only to you. Kasente never messages the other person, so that conversation stays between the two of you. Send money with the note "loan" and it's recorded here automatically.</span></div>`};
+
+SCREENS.goals=()=>{const tot=S.goals.reduce((a,g)=>a+g.saved,0);
+ return `
+ <div class="card between"><div><span class="eyebrow">Saved towards goals</span><div class="tnum" style="font-family:var(--f-display);font-weight:800;font-size:24px">${ugx(tot)}</div></div><span class="chip" style="--c:var(--accent);width:48px;height:48px">${ic('piggy',24)}</span></div>
+ ${S.goals.map(g=>{const p=g.saved/g.target,need=goalNeed(g),ok=g.rate>=need*.97;
+  return `<div class="card stack" style="gap:10px"><div class="between"><b style="font-size:15.5px">${esc(g.name)}</b><span class="pill ${ok?'good':'warn'}">${ok?'On track':'Behind'}</span></div>
+  <div class="between tnum"><span style="font-family:var(--f-display);font-weight:800;font-size:20px">${num(g.saved)}</span><span class="small muted">of ${num(g.target)}</span></div>
+  <div class="bar thick"><i style="width:${p*100}%;background:${g.c}"></i></div>
+  <dl class="kv" style="margin:0"><dt>Target date</dt><dd>${shortDate(g.date)}</dd><dt>Needed per month</dt><dd>${ugx(Math.round(need/1000)*1000)}</dd><dt>You're saving</dt><dd>${ugx(g.rate)}/month</dd><dt>Automatic</dt><dd>${esc(g.auto)}</dd></dl>
+  ${ok?'':`<div class="note warn" style="padding:10px 12px">${ic('sparkle')}<span class="small">Add about ${ugx(Math.round((need-g.rate)/1000)*1000)} a month to reach this on time, or move the date to ${shortDate(new Date(TODAY0.getTime()+((g.target-g.saved)/g.rate)*30.44*DAY).toISOString().slice(0,10))}.</span></div>`}
+  <div class="row"><button class="btn sm primary grow" data-act="contrib" data-arg="${g.id}">${ic('plus',16)}Add money</button><button class="btn sm grow" data-act="askAdvisor" data-arg="Can I afford ${esc(g.name)} if I keep spending like this?">Ask advisor</button></div></div>`}).join('')}
+ <button class="btn block" data-act="addGoal">${ic('target')}New goal</button>`};
+
+const INV_TYPES={sacco:{name:'SACCO shares',c:'#8D6B42',risk:'Low–medium',learn:'A savings and credit co-operative owned by its members. You buy shares, save regularly, can borrow at member rates, and may receive a yearly dividend. Check that the SACCO is registered and read its latest audited accounts before joining.',suits:'Regular savers who want access to affordable loans.'},
+ tbill:{name:'Treasury bills',c:'#3B76CC',risk:'Low',learn:'Short-term government debt sold by Bank of Uganda at auction (91, 182 and 364 days). You pay less than face value and receive the full face value at maturity. Rates change with each auction, so check the latest results on the Bank of Uganda website.',suits:'Money you will not need until a fixed date.'},
+ tbond:{name:'Treasury bonds',c:'#5B6FD6',risk:'Low',learn:'Longer government debt (2 to 20 years) that pays interest twice a year. Selling before maturity depends on finding a buyer at the going price.',suits:'Long-term goals such as land or a child\'s university fees.'},
+ unit:{name:'Unit trusts',c:'#0F8A83',risk:'Low–medium',learn:'A pooled fund run by a licensed manager. A money market fund invests in short-term deposits and bills and usually lets you withdraw within a few days. Equity and balanced funds can rise and fall more.',suits:'Emergency savings and flexible goals.'},
+ stock:{name:'Stocks (USE)',c:'#DD7A22',risk:'High',learn:'Shares in companies listed on the Uganda Securities Exchange, bought through a licensed broker. Prices move daily and some shares trade rarely. Returns come from price changes and dividends.',suits:'Money you can leave for five years or more.'},
+ fd:{name:'Fixed deposits',c:'#2F8A5B',risk:'Low',learn:'Money locked with a bank for a set term at an agreed rate. Breaking it early usually costs you part of the interest.',suits:'Lump sums you want safe for 3–12 months.'},
+};
+SCREENS.invest=()=>{const tot=invTotal(),cost=S.inv.reduce((a,x)=>a+x.invested,0),gain=tot-cost;
+ const by={};S.inv.forEach(x=>by[x.type]=(by[x.type]||0)+x.value);
+ return `
+ <div class="card stack" style="gap:10px"><span class="eyebrow">Portfolio value</span><div class="tnum" style="font-family:var(--f-display);font-weight:800;font-size:28px">${ugx(tot)}</div><span class="small"><span class="pill good">▲ ${ugx(gain)}</span> <span class="muted">(${(gain/cost*100).toFixed(1)}%) on ${ugx(cost)} put in</span></span>
+ <div class="stackbar">${Object.entries(by).map(([k,v])=>`<i style="width:${v/tot*100}%;background:${INV_TYPES[k].c}" title="${INV_TYPES[k].name}"></i>`).join('')}</div>
+ <div class="legend">${Object.entries(by).map(([k,v])=>`<div><i style="background:${INV_TYPES[k].c}"></i><span>${INV_TYPES[k].name}</span><b>${Math.round(v/tot*100)}%</b></div>`).join('')}</div></div>
+ <div class="sec-head"><h2>Holdings</h2><button class="link" data-act="addInv">Add holding</button></div>
+ <div class="list">${S.inv.map(x=>{const g=x.value-x.invested;return `<div class="tx" style="grid-template-columns:40px 1fr auto"><span class="chip" style="--c:${INV_TYPES[x.type].c}">${ic(x.type==='stock'?'trend':x.type==='sacco'?'coins':x.type==='unit'?'chart':'calendar')}</span><span class="tx-main"><span class="tx-title">${esc(x.name)}</span><span class="tx-sub">${esc(x.detail)}</span></span><span class="tx-amt">${num(x.value)}<small style="color:${g>=0?'var(--good)':'var(--bad)'}">${g>=0?'+':'−'}${num(g)}</small></span></div>`}).join('')}</div>
+ <div class="sec-head"><h2>Learn the options</h2></div>
+ <div class="stack">${Object.entries(INV_TYPES).map(([k,t])=>`<details class="card" style="padding:14px 16px"><summary class="between" style="cursor:pointer;list-style:none"><span class="row"><i style="width:10px;height:10px;border-radius:3px;background:${t.c}"></i><b>${t.name}</b></span><span class="pill">${t.risk} risk</span></summary><p class="small" style="margin-top:10px">${t.learn}</p><p class="xs muted" style="margin-top:8px"><b>Suits:</b> ${t.suits}</p></details>`).join('')}</div>
+ <div class="note">${ic('info')}<span class="small">This is general education in plain language, not regulated financial advice. Figures shown are sample values.</span></div>`};
+
+SCREENS.transport=()=>{const tr=expenses().filter(t=>t.cat==='transport');const tot=tr.reduce((a,t)=>a+t.amt,0);const wk=tot/(DAY_OF_CYCLE/7);
+ const cities=[...new Set(S.routes.map(r=>r.city))];
+ return `
+ <form class="card stack" data-form="fare" id="fareForm">
+  <div class="between"><b style="font-size:15.5px">Did I pay a fair price?</b>${ic('bike')}</div>
+  <label class="field"><span>Route</span><select id="fr" name="route" data-live="fare">${S.routes.map(r=>`<option value="${r.id}">${r.city==='Kampala'?'':r.city+': '}${routeName(r)}</option>`).join('')}</select></label>
+  <div class="grid2"><label class="field"><span>Ride</span><select id="fm" name="mode" data-live="fare"><option value="boda">Boda boda</option><option value="taxi">Taxi (matatu)</option></select></label><label class="field"><span>You paid (UGX)</span><input id="fa" name="amt" type="number" inputmode="numeric" value="8000" data-live="fare"></label></div>
+  <div id="fareOut"></div>
+  <button class="btn primary">Log this ride</button>
+ </form>
+ <div class="stat3"><div class="stat"><span>This cycle</span><b>${kf(tot)}</b></div><div class="stat"><span>Per week</span><b>${kf(Math.round(wk/500)*500)}</b></div><div class="stat"><span>Overpaid</span><b style="color:var(--warn)">${kf(tr.reduce((a,t)=>{const v=t.route&&fareVerdict(route(t.route),t.mode,t.amt);return a+(v&&t.amt>v.hi?t.amt-v.hi:0)},0))}</b></div></div>
+ <div class="sec-head"><h2>Your recent rides</h2></div>
+ <div class="list">${tr.sort((a,b)=>pd(b.d)-pd(a.d)).map(txRow).join('')}</div>
+ <div class="sec-head"><h2>Fare reference</h2><button class="link" data-act="addRoute">Add route</button></div>
+ ${cities.map(c=>`<div class="list"><div class="setrow" style="background:var(--surface-2);padding:8px 14px"><span class="eyebrow">${c}</span></div>${S.routes.filter(r=>r.city===c).map(r=>`<button class="setrow" data-act="editRoute" data-arg="${r.id}"><span class="grow"><b>${routeName(r)}</b><span class="tnum">Boda ${kf(r.boda[0])}–${kf(r.boda[1])}${r.taxi?` · Taxi ${kf(r.taxi[0])}–${kf(r.taxi[1])}`:''}</span></span>${ic('chev',16)}</button>`).join('')}</div>`).join('')}
+ <p class="xs muted" style="padding:0 4px">Reference fares are sample community prices. Tap any route to match what's normal in your area.</p>`};
+MOUNT.transport=()=>LIVE.fare();
+
+SCREENS.family=()=>{const F=S.family;const inc=F.members.filter(m=>!m.sub).reduce((a,m)=>a+m.inc,0),sp=F.members.filter(m=>!m.sub).reduce((a,m)=>a+m.spent,0);
+ const shared=S.bills.filter(b=>b.shared&&b.status!=='paid');const st=F.student;
+ return `
+ <div class="card stack" style="gap:12px"><div class="between"><div><span class="eyebrow">Household</span><h2 style="font-size:20px;margin-top:2px">${F.name}</h2></div><div class="row" style="gap:0">${F.members.map((m,i)=>`<span class="avatar" style="margin-left:${i?-10:0}px;border:2px solid var(--surface)">${m.init}</span>`).join('')}</div></div>
+ <div class="stat3"><div class="stat" style="background:var(--bg)"><span>Income</span><b>${kf(inc)}</b></div><div class="stat" style="background:var(--bg)"><span>Spent</span><b>${kf(sp)}</b></div><div class="stat" style="background:var(--bg)"><span>Left</span><b style="color:var(--good)">${kf(inc-sp)}</b></div></div>
+ <div class="setrow" style="padding:4px 0;border:0"><span class="grow"><b>Keep my personal spending private</b><span>David sees your shared bills and totals only</span></span><button class="toggle ${F.privateMine?'on':''}" data-act="famPrivate" aria-label="Keep personal spending private" aria-pressed="${F.privateMine}"></button></div></div>
+ <div class="sec-head"><h2>Members</h2><button class="link" data-act="invite">Invite</button></div>
+ <div class="list">${F.members.map(m=>`<div class="tx" style="grid-template-columns:40px 1fr auto"><span class="avatar">${m.init}</span><span class="tx-main"><span class="tx-title">${m.n}</span><span class="tx-sub">${m.r}</span></span>${m.sub?'<span class="pill accent">Sub-account</span>':`<span class="tx-amt">${kf(m.spent)}<small>spent</small></span>`}</div>`).join('')}</div>
+ <div class="sec-head"><h2>Grace's allowance</h2><button class="link" data-act="sendAllowance">Send money</button></div>
+ <div class="card stack" style="gap:10px"><div class="between"><span class="small muted">October allowance</span><b class="tnum">${num(st.spent)} / ${num(st.allowance)}</b></div><div class="bar thick"><i style="width:${st.spent/st.allowance*100}%"></i></div>
+ ${st.cats.map(([n,v,c])=>`<div class="between small"><span class="row" style="gap:8px"><i style="width:9px;height:9px;border-radius:3px;background:${c}"></i>${n}</span><span class="tnum">${num(v)}</span></div>`).join('')}
+ <p class="xs muted">Grace sees the same view. It's here to guide, not to control.</p></div>
+ <div class="sec-head"><h2>Shared bills</h2></div>
+ <div class="list">${shared.map(billRow).join('')}</div>
+ <div class="sec-head"><h2>Family goal</h2></div>
+ <div class="card stack" style="gap:8px"><div class="between"><b>${F.goal.name}</b><span class="small muted tnum">${kf(F.goal.saved)} / ${kf(F.goal.target)}</span></div><div class="bar thick"><i style="width:${F.goal.saved/F.goal.target*100}%;background:var(--sun)"></i></div><span class="xs muted">Visible to every member · David added 120k last week</span></div>
+ <div class="sec-head"><h2>Savings group</h2></div>
+ <div class="card stack" style="gap:8px"><div class="between"><b>${F.group.name}</b><span class="pill accent">${F.group.members} members</span></div><dl class="kv" style="margin:0"><dt>Contribution</dt><dd>${ugx(F.group.contrib)} weekly</dd><dt>Current pot</dt><dd>${ugx(F.group.pot)}</dd></dl><div class="note" style="padding:10px 12px">${ic('calendar')}<span class="small">${F.group.next}</span></div></div>`};
+
+SCREENS.more=()=>{const late=S.bills.filter(b=>b.status!=='paid'&&daysUntil(b.due)<0).length,soon=S.bills.filter(b=>b.status!=='paid'&&daysUntil(b.due)>=0&&daysUntil(b.due)<=7).length;
+ const over=S.cats.filter(c=>c.budget&&catSpent(c.id)>c.budget).length;
+ const T=(go,icn,t,s,em,act)=>`<button class="tile" ${act?`data-act="${act}"`:`data-go="${go}"`}><span class="tile-ic">${ic(icn)}</span><b>${t}</b><span>${s}</span>${em?`<em>${em}</em>`:''}</button>`;
+ return `
+ <div class="sec-head" style="margin-top:0"><h2>Money</h2></div>
+ <div class="tiles">${T('budgets','chart','Budgets','13 categories with monthly limits',over?`${over} over budget`:'')}${T('bills','calendar','Bills','UMEME, NWSC, rent, school fees',`${late?late+' late · ':''}${soon} due this week`)}${T('goals','target','Savings goals','Track progress to each goal',S.goals.filter(g=>g.rate<goalNeed(g)*.97).length+' behind')}${T('lending','hand','Lending','Who owes you, who you owe','')}</div>
+ <div class="sec-head"><h2>Grow</h2></div>
+ <div class="tiles">${T('invest','trend','Investments','SACCO, T-bills, unit trusts, USE','')}${T('analytics','chart','Analytics & reports','Charts, PDF and Excel reports','')}</div>
+ <div class="sec-head"><h2>Capture</h2></div>
+ <div class="tiles">${T('scan','receipt','Scan a receipt','Photo to expense in seconds','')}${T('whatsapp','whatsapp','WhatsApp bot','Forward MoMo SMS and receipts','')}${T('','sms','SMS reader','See how messages are read','','smsTest')}${T('transport','bike','Transport fares','Boda and taxi price check','')}</div>
+ <div class="sec-head"><h2>People</h2></div>
+ <div class="tiles">${T('family','people','Family & groups','Household view, sub-accounts','')}${T('accounts','wallet','Accounts','MoMo, Airtel, bank, cash, SACCO','')}</div>
+ <div class="sec-head"><h2>App</h2></div>
+ <div class="list"><button class="setrow" data-go="settings"><span class="chip sm" style="--c:var(--accent)">${ic('gear',18)}</span><span class="grow"><b>Settings & privacy</b><span>Lock, SMS access, backup, theme</span></span>${ic('chev',16)}</button><button class="setrow" data-act="lockNow"><span class="chip sm" style="--c:var(--accent)">${ic('lock',18)}</span><span class="grow"><b>Lock Kasente now</b><span>PIN or fingerprint to open</span></span>${ic('chev',16)}</button><button class="setrow" data-act="onboard"><span class="chip sm" style="--c:var(--accent)">${ic('sparkle',18)}</span><span class="grow"><b>Replay the welcome tour</b><span>Three screens shown on first open</span></span>${ic('chev',16)}</button></div>`};
+
+/* advisor */
+SCREENS.advisor=()=>`
+ <div class="note">${ic('shield')}<span class="small">The advisor sees category totals only. Names, phone numbers and individual transactions stay on your phone. <button class="link small" data-act="aiPayload">See what's shared</button></span></div>
+ <div class="chat" id="chat">${S.chat.map(m=>`<div class="msg ${m.me?'me':'ai'}">${m.html}</div>`).join('')}</div>
+ <div class="chips" id="sugg">${['Am I on track this month?','How much am I spending on boda per week?','Why did I run out of money last month?','Can I afford school fees in January?','I want to save UGX 2 million by June','My UMEME bill went up three months in a row','Should I buy T-bills or a fixed deposit?','What is a SACCO and is it worth joining?'].map(q=>`<button class="chipbtn" data-act="ask" data-arg="${esc(q)}">${q}</button>`).join('')}</div>
+ <form class="composer" data-form="ask"><input id="askInput" name="q" placeholder="Ask about your money…" autocomplete="off" aria-label="Ask the advisor"><button class="send" aria-label="Send">${ic('send')}</button></form>`;
+MOUNT.advisor=()=>{const v=$('#view');v.scrollTop=v.scrollHeight};
+
+/* whatsapp */
+SCREENS.whatsapp=()=>`
+ <div class="wa">
+  <div class="wa-head"><span class="wa-av">K</span><div class="grow"><b>Kasente</b><div class="xs muted">Bot · replies instantly</div></div><span class="pill good">Linked</span></div>
+  <div class="chat" id="wachat">${S.wa.map(m=>`<div class="msg ${m.me?'me':'ai'}">${m.html}<span class="meta">${m.time}</span></div>`).join('')}</div>
+ </div>
+ <div class="chips">${['balance','spent today','budget','remind me UMEME 5 Oct'].map(c=>`<button class="chipbtn" data-act="waCmd" data-arg="${c}">${c}</button>`).join('')}<button class="chipbtn" data-act="waSms">Forward a MoMo SMS</button><label class="chipbtn" for="waFile" style="cursor:pointer">${ic('camera',14)}Send receipt photo</label><input id="waFile" type="file" accept="image/*" hidden data-live="waFile"></div>
+ <form class="composer" data-form="wa"><input id="waInput" name="q" placeholder="Type a command or paste an SMS" autocomplete="off" aria-label="Message the bot"><button class="send" aria-label="Send">${ic('send')}</button></form>
+ <div class="note">${ic('info')}<span class="small">In the live service you save the Kasente number in WhatsApp and forward messages to it. This panel runs the same commands against your sample data.</span></div>`;
+MOUNT.whatsapp=()=>{const c=$('#wachat');c&&c.lastElementChild&&c.lastElementChild.scrollIntoView({block:'nearest'})};
+
+/* scan */
+let SCAN=null;
+const SAMPLE_RECEIPT={merchant:'Kisaasi Fresh Mart',date:'2026-10-02',items:[['Sugar 2kg',9000],['Cooking oil 1L',8500],['Rice 5kg',22500],['Fresh milk 1L',3000],['Bread',5000],['Bar soap',4000]]};
+SCREENS.scan=()=>SCAN?scanResult():`
+ <label class="drop" for="rcpt">${ic('camera',32)}<b>Take or choose a photo</b><span class="small muted">Receipts, invoices or handwritten notes. Text is read on your phone first.</span><span class="btn sm primary" style="margin-top:6px">${ic('upload',16)}Choose image</span></label>
+ <input id="rcpt" type="file" accept="image/*" hidden data-live="rcpt">
+ <button class="btn block" data-act="sampleReceipt">${ic('receipt')}Try a sample receipt</button>
+ <div class="card stack" style="gap:8px"><b>No receipt? Type it.</b><p class="small muted">"beans and posho from Grace's stall, 12,000/=" works fine. Kasente picks out the amount and suggests a category.</p><button class="btn sm" data-act="add">Write a quick note</button></div>
+ <div class="note">${ic('shield')}<span class="small">The photo stays on your phone. Only the extracted text is used to sort items into categories.</span></div>`;
+function scanResult(){const s=SCAN;const tot=s.items.reduce((a,x)=>a+(+x[1]||0),0);
+ return `
+ ${s.img?`<img class="thumb" src="${s.img}" alt="Your receipt">`:`<div class="receipt" aria-label="Sample receipt"><div class="c"><b>KISAASI FRESH MART</b><br>Kisaasi Rd, Kampala<br>02/10/2026 18:42</div><hr>${s.items.map(x=>`<div class="r"><span>${x[0]}</span><span>${num(x[1])}</span></div>`).join('')}<hr><div class="r"><b>TOTAL</b><b>${num(52000)}</b></div><div class="c" style="margin-top:6px">Cash · Thank you!</div></div>`}
+ <div class="note">${ic('check')}<span class="small"><b>Read ${s.items.length} items.</b> Check them and fix anything the camera got wrong before saving.</span></div>
+ <form class="card stack" data-form="scan">
+  <div class="grid2"><label class="field"><span>Shop</span><input name="merchant" value="${esc(s.merchant)}"></label><label class="field"><span>Date</span><input name="date" type="date" value="${s.date}"></label></div>
+  <div class="field"><span>Items</span><div class="stack" id="items" style="gap:6px">${s.items.map((x,i)=>`<div class="itemrow"><input value="${esc(x[0])}" data-i="${i}" data-k="0" data-live="item" aria-label="Item name"><input class="tnum" type="number" value="${x[1]}" data-i="${i}" data-k="1" data-live="item" aria-label="Item amount"><button type="button" class="icon-btn" style="width:30px;height:30px;border:0;background:none" data-act="rmItem" data-arg="${i}" aria-label="Remove item">${ic('x',16)}</button></div>`).join('')}</div><button type="button" class="link small" style="align-self:flex-start" data-act="addItem">+ Add item</button></div>
+  <div class="grid2"><label class="field"><span>Category</span><select name="cat">${catOptions(guessCat(s.merchant+' '+s.items.map(x=>x[0]).join(' ')))}</select></label><label class="field"><span>Paid with</span><select name="acct">${acctOptions('cash')}</select></label></div>
+  <div class="between"><span class="muted">Total</span><b class="tnum" id="scanTotal" style="font-size:20px">${ugx(tot)}</b></div>
+  <button class="btn primary">Save expense</button><button type="button" class="btn" data-act="scanReset">Scan another</button>
+ </form>`}
+
+/* analytics */
+SCREENS.analytics=()=>{const R=S.ui.range;const labels=HIST.labels.slice(-R),inc=HIST.inc.slice(-R),exp=HIST.exp.slice(-R);
+ const segs=S.cats.map(c=>({c:c.c,v:catSpent(c.id),n:c.name})).filter(s=>s.v>0).sort((a,b)=>b.v-a.v);const tot=segs.reduce((a,s)=>a+s.v,0);
+ const dm=dailyTotals();const start=new Date(TODAY0-((TODAY0.getDay()+6)%7)*DAY-35*DAY);const mx=Math.max(...Object.values(dm));let heat='';
+ ['M','T','W','T','F','S','S'].forEach(d=>heat+=`<span class="xs muted" style="text-align:center;font-weight:600">${d}</span>`);
+ for(let d=new Date(start);d<=new Date(TODAY0.getTime()+((7-TODAY0.getDay())%7)*DAY);d=new Date(d.getTime()+DAY)){const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;const future=d>TODAY0;const v=dm[k]||0;const pct=future?0:Math.round(12+Math.sqrt(v/mx)*80);heat+=`<i title="${dlabel(d)}: ${future?'—':ugx(v)}" style="background:${future?'transparent':v?`color-mix(in srgb,var(--accent) ${pct}%,var(--surface-2))`:'var(--surface-2)'};${future?'border:1px dashed var(--line)':''}"></i>`}
+ const by={};S.inv.forEach(x=>by[x.type]=(by[x.type]||0)+x.value);const it=invTotal();
+ return `
+ <div class="card stack"><div class="between"><b>Spending by category</b><span class="xs muted">This cycle</span></div>
+ <div class="row" style="gap:16px;align-items:center;flex-wrap:wrap;justify-content:center">${donut(segs,150,22,`<text x="75" y="72" text-anchor="middle" style="font:800 17px var(--f-display);fill:var(--ink)">${kf(tot)}</text><text x="75" y="88" text-anchor="middle" style="font:600 10px var(--f-body);fill:var(--muted)">spent</text>`)}<div class="legend grow" style="grid-template-columns:1fr;min-width:150px">${segs.slice(0,7).map(s=>`<div><i style="background:${s.c}"></i><span>${s.n}</span><b>${Math.round(s.v/tot*100)}%</b></div>`).join('')}</div></div></div>
+ <div class="card stack"><div class="between"><b>Income vs spending</b><div class="seg" style="padding:2px">${[6,12].map(n=>`<button class="${R===n?'on':''}" data-act="range" data-arg="${n}" style="min-height:28px;font-size:12px">${n}m</button>`).join('')}</div></div>${barsChart(labels,inc,exp)}<div class="row small"><span class="row" style="gap:6px"><i style="width:10px;height:10px;border-radius:3px;background:var(--accent)"></i>Income</span><span class="row" style="gap:6px"><i style="width:10px;height:10px;border-radius:3px;background:var(--sun)"></i>Spending</span><span class="muted xs" style="margin-left:auto">December peaks every year</span></div></div>
+ <div class="card stack"><div class="between"><b>Daily spending</b><span class="xs muted">Last 6 weeks</span></div><div class="heat">${heat}</div><div class="between xs muted"><span>Darker = more spent</span><span>Peaks fall on paydays</span></div></div>
+ <div class="card stack"><div class="between"><b>Net worth</b><span class="pill good">▲ ${kf(netWorth()-HIST.nw[0]*1e6)} in 12 months</span></div>${lineChart(HIST.labels,[...HIST.nw,netWorth()/1e6])}</div>
+ <div class="card stack" style="gap:10px"><b>Savings goals</b>${S.goals.map(g=>`<div class="stack" style="gap:5px"><div class="between small"><span>${esc(g.name)}</span><span class="tnum muted">${Math.round(g.saved/g.target*100)}%</span></div><div class="bar"><i style="width:${g.saved/g.target*100}%;background:${g.c}"></i></div></div>`).join('')}</div>
+ <div class="card stack" style="gap:10px"><b>Investments by type</b><div class="stackbar">${Object.entries(by).map(([k,v])=>`<i style="width:${v/it*100}%;background:${INV_TYPES[k].c}"></i>`).join('')}</div><div class="legend">${Object.entries(by).map(([k,v])=>`<div><i style="background:${INV_TYPES[k].c}"></i><span>${INV_TYPES[k].name}</span><b>${kf(v)}</b></div>`).join('')}</div></div>
+ <div class="sec-head"><h2>Reports</h2></div>
+ <div class="list">${[['monthly','Monthly summary','Income, spending by category, budget check and a short commentary'],['annual','Annual overview','Full year, year-on-year change and investment growth'],['custom','Custom date range','Any period, like a wedding or a school term']].map(([k,t,s])=>`<button class="setrow" data-act="report" data-arg="${k}"><span class="chip sm" style="--c:var(--accent)">${ic('receipt',18)}</span><span class="grow"><b>${t}</b><span>${s}</span></span>${ic('chev',16)}</button>`).join('')}</div>`};
+
+/* settings */
+SCREENS.settings=()=>{const s=S.settings;const tg=(k,l,d)=>`<div class="setrow"><span class="grow"><b>${l}</b><span>${d}</span></span><button class="toggle ${s[k]?'on':''}" data-act="toggle" data-arg="${k}" aria-pressed="${s[k]}" aria-label="${l}"></button></div>`;
+ return `
+ <div class="card row"><span class="avatar" style="width:52px;height:52px;font-size:17px">SN</span><div class="grow"><b style="font-size:16px">${S.user.full}</b><div class="small muted">${S.user.role}</div><div class="xs muted">Signed in with phone number +256 7·· ··· 812</div></div></div>
+ <div class="sec-head"><h2>Security</h2></div>
+ <div class="list">${tg('lock','App lock','Ask for PIN or fingerprint every time Kasente opens')}${tg('bio','Use fingerprint or face','Falls back to your 4-digit PIN')}<button class="setrow" data-act="lockNow"><span class="grow"><b>Lock now</b><span>5 wrong PINs lock the app for 30 seconds</span></span>${ic('lock',18)}</button></div>
+ <div class="sec-head"><h2>Privacy</h2></div>
+ <div class="list">
+  <div class="setrow"><span class="chip sm" style="--c:var(--good)">${ic('shield',18)}</span><span class="grow"><b>Your data stays on this phone</b><span>Encrypted database · works offline · nothing sent to Kasente servers</span></span></div>
+  ${tg('sms','Read money SMS automatically','MTN, Airtel and bank confirmations only')}
+  <button class="setrow" data-act="smsScope"><span class="grow"><b>What Kasente can and can't read</b><span>See the exact message types</span></span>${ic('chev',16)}</button>
+  ${tg('ai','Anonymise advisor questions','Send category totals only, never names or numbers')}
+  <button class="setrow" data-act="aiPayload"><span class="grow"><b>See what the advisor receives</b><span>The exact summary sent with your last question</span></span>${ic('chev',16)}</button>
+ </div>
+ <div class="sec-head"><h2>Backup</h2></div>
+ <div class="list">${tg('backup','Back up to Google Drive','Encrypted on your phone before upload. Only your Google account can open it.')}${s.backup?`<div class="setrow"><span class="grow"><b>Last backup</b><span>Just now · 1.2 MB · encrypted</span></span><span class="pill good">${ic('check',12)} Done</span></div>`:''}</div>
+ <div class="sec-head"><h2>Notifications</h2></div>
+ <div class="list">${tg('push','Push notifications','Bills, budgets, loans and fares')}${tg('wa','WhatsApp alerts','Bill reminders on WhatsApp too')}<div class="setrow"><span class="grow"><b>Budget alert at</b><span>Warn me when a category reaches this share</span></span><select class="input" style="width:auto;min-height:38px" data-live="threshold" aria-label="Budget alert threshold">${[70,80,90].map(v=>`<option ${s.threshold===v?'selected':''} value="${v}">${v}%</option>`).join('')}</select></div></div>
+ <div class="sec-head"><h2>Appearance & language</h2></div>
+ <div class="card stack"><div class="seg">${[['system','System'],['light','Light'],['dark','Dark']].map(([k,l])=>`<button class="${s.theme===k?'on':''}" data-act="theme" data-arg="${k}">${l}</button>`).join('')}</div>
+ <label class="field"><span>Language</span><select data-live="lang"><option value="en" ${s.lang==='en'?'selected':''}>English</option><option value="lg" ${s.lang==='lg'?'selected':''}>Luganda (beta)</option><option value="sw" disabled>Kiswahili (coming in phase 3)</option></select></label>
+ <label class="field"><span>Currency</span><select disabled><option>Uganda Shilling (UGX)</option></select></label></div>
+ <div class="sec-head"><h2>Your data</h2></div>
+ <div class="list"><button class="setrow" data-act="report" data-arg="monthly"><span class="grow"><b>Export reports</b><span>PDF or Excel</span></span>${ic('down',18)}</button><button class="setrow" data-act="wipe"><span class="grow"><b style="color:var(--bad)">Delete all data</b><span>Removes everything from this phone</span></span>${ic('x',18)}</button></div>
+ <p class="xs muted" style="text-align:center;padding:8px 0">Kasente 0.1 · prototype · No ads, and your data is never sold.</p>`};
+
+SCREENS.notifs=()=>`<div class="list">${S.notifs.map(n=>`<button class="tx" data-act="notif" data-arg="${n.id}" style="${n.read?'':'background:color-mix(in srgb,var(--accent) 5%,var(--surface))'}"><span class="chip" style="--c:var(--${n.t==='accent'?'accent':n.t})">${ic(n.ic)}</span><span class="tx-main" style="white-space:normal"><span class="tx-title" style="white-space:normal">${n.title}</span><span class="tx-sub" style="white-space:normal">${n.body}</span></span><span class="xs muted" style="align-self:start;white-space:nowrap">${n.when}</span></button>`).join('')}</div><button class="btn block" data-act="readAll">Mark all as read</button>`;
+
+/* ---------- render ---------- */
+let stack=['home'];
+const cur=()=>stack[stack.length-1];
+function topbar(c){
+ const un=S.notifs.filter(n=>!n.read).length;
+ const bell=`<button class="icon-btn" data-go="notifs" aria-label="Notifications">${ic('bell')}${un?`<span class="badge">${un}</span>`:''}</button>`;
+ if(c==='home')return `<div class="greet"><span class="logo-mark">K</span><div><div class="greet-hi">Oli otya, ${S.user.name}</div><div class="greet-sub">${DOW[TODAY.getDay()]==='Fri'?'Friday':DOW[TODAY.getDay()]} ${TODAY.getDate()} ${MONTH_FULL[TODAY.getMonth()]}</div></div></div><div class="top-actions">${bell}<button class="icon-btn" data-act="lockNow" aria-label="Lock app">${ic('lock')}</button></div>`;
+ if(ROOTS.includes(c))return `<h1 class="top-title">${TITLES[c]}</h1><div class="top-actions">${c==='activity'?`<button class="icon-btn" data-act="add" aria-label="Add">${ic('plus')}</button>`:''}${bell}</div>`;
+ return `<button class="icon-btn" data-act="back" aria-label="Back">${ic('back')}</button><h1 class="top-title sm">${TITLES[c]}</h1>`;
+}
+function render(keep){const c=cur(),v=$('#view'),y=v.scrollTop;$('#top').innerHTML=topbar(c);v.innerHTML=`<div class="screen">${SCREENS[c]()}</div>`;v.scrollTop=keep?y:0;MOUNT[c]&&MOUNT[c]();
+ const navKey=ROOTS.includes(c)?c:'more';document.querySelectorAll('[data-nav]').forEach(b=>{b.classList.toggle('on',b.dataset.nav===navKey);b.setAttribute('aria-current',b.dataset.nav===navKey?'page':'false')})}
+const refresh=()=>render(true);
+function go(n){closeSheet();if(ROOTS.includes(n))stack=[n];else if(cur()!==n)stack.push(n);render()}
+function back(){if(stack.length>1)stack.pop();render()}
+
+/* sheet + toast */
+function openSheet(title,body,mount){$('#layer').innerHTML=`<div class="overlay" data-act="bgClose"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-head"><h3>${title}</h3><button class="icon-btn" data-act="close" aria-label="Close">${ic('x')}</button></div><div class="sheet-body">${body}</div></div></div>`;mount&&mount()}
+function closeSheet(){$('#layer').innerHTML=''}
+let toastT;function toast(msg,icn='check'){const el=document.createElement('div');el.className='toast';el.setAttribute('role','status');el.innerHTML=`${ic(icn,18)}<span>${msg}</span>`;document.querySelectorAll('.toast').forEach(t=>t.remove());$('#phone').appendChild(el);clearTimeout(toastT);toastT=setTimeout(()=>el.remove(),3800)}
+
+/* ---------- mutations ---------- */
+function addTxn(t){t.id=nid('t');t.d=t.d||stamp();S.txns.push(t);const a=acct(t.acct);if(a)a.bal+=t.kind==='in'?t.amt:-t.amt;
+ if(t.kind==='lend'&&t.loanWho)S.loans.unshift({id:nid('l'),dir:'out',who:t.loanWho,amt:t.amt,paid:0,date:t.d.slice(0,10),due:'2026-10-31',note:'Detected from SMS',auto:true});
+ let msg=`Saved ${ugx(t.amt)} · ${catOf(t).name}`;
+ if(t.kind==='out'){const c=cat(t.cat);if(c&&c.budget){const p=catSpent(c.id)/c.budget;if(p>=1)msg+=` — ${c.name} is now over budget`;else if(p>=S.settings.threshold/100)msg+=` — ${c.name} at ${Math.round(p*100)}% of budget`}}
+ if(t.route){const v=fareVerdict(route(t.route),t.mode,t.amt);if(v&&v.k!=='good')msg=`You paid ${ugx(t.amt)} for ${routeName(route(t.route))}. The usual range is ${num(v.lo)}–${num(v.hi)}.`}
+ const b=t.kind==='out'&&S.bills.find(b=>b.status!=='paid'&&guessCat(b.name)===t.cat&&t.cat==='utilities'&&Math.abs(b.amt-t.amt)/b.amt<.15);
+ if(b){b.status='paid';b.paidOn=t.d.slice(0,10);b.auto=true;msg+=` · ${b.name} marked paid`}
+ toast(msg,t.route&&msg.startsWith('You paid')?'alert':'check');return t}
+
+/* ---------- advisor ---------- */
+function advise(q){const s=q.toLowerCase();let m;
+ const spent=cycleSpent(),bud=totalBudget();
+ if(m=s.match(/save\s+(?:ugx\s*)?([\d.,]+)\s*(k|m|million|mn)?\b.*?\bby\s+([a-z]+)/)){let amt=parseFloat(m[1].replace(/,/g,''));if(/k/.test(m[2]||''))amt*=1e3;else if(/m/.test(m[2]||''))amt*=1e6;else if(amt<1000)amt*=1e6;
+  const mi=MONTH_FULL.findIndex(x=>x.toLowerCase().startsWith(m[3].slice(0,3)));if(mi<0)return `Tell me the month you're aiming for, for example "save 2 million by June".`;
+  let y=2026;if(mi<=TODAY.getMonth())y=2027;const end=new Date(y,mi+1,0);const months=Math.max(1,(end-TODAY0)/(30.44*DAY));const per=Math.ceil(amt/months/5000)*5000;const free=cycleIncome()-spent;
+  return `To reach <b>${ugx(amt)}</b> by the end of ${MONTH_FULL[mi]} ${y} you need about <b>${ugx(per)} a month</b> for ${months.toFixed(1)} months.<ul><li>Last cycle you had about ${ugx(HIST.inc[11]-HIST.exp[11])} left over, so this needs ${per>HIST.inc[11]-HIST.exp[11]?'some cuts as well':'steady discipline, not big cuts'}.</li><li>Food and airtime are your easiest places to trim: both are running above budget.</li><li>A money market fund keeps it separate and earns a little while you wait.</li></ul>Want me to set this up as a goal? <button class="link small" data-act="addGoalPrefill" data-arg="${amt}|${y}-${String(mi+1).padStart(2,'0')}-${end.getDate()}">Create goal</button>`}
+ if(/on track|on budget|how am i doing|this month/.test(s)){const fp=catSpent('food')/cat('food').budget;
+  return `You've spent <b>${ugx(spent)}</b> of your <b>${ugx(bud)}</b> budget with <b>${DAYS_LEFT} days</b> to go.<ul><li>Rent, school fees and family support are already paid, so most of the big items are behind you.</li><li><b>Food</b> is at ${Math.round(fp*100)}% of its limit, about 15% above last cycle. At this rate it runs out around 9 October.</li><li><b>Airtime & Data</b> is over by ${ugx(catSpent('airtime')-cat('airtime').budget)}.</li></ul>Keeping food to about ${ugx(Math.round((cat('food').budget-catSpent('food'))/DAYS_LEFT/500)*500)} a day keeps you inside the budget.`}
+ if(/boda|transport|taxi|fare/.test(s)){const tr=expenses().filter(t=>t.cat==='transport'),tot=tr.reduce((a,t)=>a+t.amt,0),wk=tot/(DAY_OF_CYCLE/7);
+  return `You're spending about <b>${ugx(Math.round(wk/500)*500)} a week</b> on transport (${ugx(tot)} this cycle).<ul><li>Your usual boda from City Centre to Ntinda is UGX 4,000, inside the normal range of 3,000–4,000.</li><li>On Wednesday 30 Sep you paid UGX 8,000 for the same trip. Agreeing the price before you board would have saved 4,000.</li><li>The Uber from Acacia Mall (18,000) is your single biggest ride. A taxi plus a short boda costs about half.</li></ul>`}
+ if(/run out|ran out|where.*money|why/.test(s))return `Last cycle you earned ${ugx(HIST.inc[11])} and spent ${ugx(HIST.exp[11])}, leaving only ${ugx(HIST.inc[11]-HIST.exp[11])}. Three things drove it:<ul><li><b>Food</b> grew for three cycles in a row, mostly small daily market and canteen buys.</li><li><b>Unplanned family support</b> of UGX 100,000 arrived mid-month on top of the planned amount.</li><li><b>Airtime & data</b> went over budget twice.</li></ul>Most of the gap is everyday spending, not one big purchase. A daily food limit would close about half of it.`;
+ if(/school fees|january|term 1/.test(s)){const g=S.goals[0],need=goalNeed(g);
+  return `For Term 1 you need <b>${ugx(g.target)}</b> by 31 January. You have <b>${ugx(g.saved)}</b> saved.<ul><li>That leaves ${ugx(g.target-g.saved)} over about ${monthsTo(g.date).toFixed(1)} months, or <b>${ugx(Math.round(need/1000)*1000)} a month</b>.</li><li>You're putting in ${ugx(g.rate)} a month, so you'd arrive about ${ugx(Math.round((g.target-g.saved-g.rate*monthsTo(g.date))/1000)*1000)} short.</li><li>December is your most expensive month every year. Moving 65,000 a month into this goal now protects it from Christmas.</li></ul>`}
+ if(/umeme|electric|yaka|power/.test(s))return `Your UMEME top-ups went from ${ugx(UMEME_HIST[0])} to ${ugx(UMEME_HIST[1])} to ${ugx(UMEME_HIST[2])}, up 16% in three months.<ul><li>If tariffs didn't change, the rise is most likely usage: a new appliance, an iron or water heater used more, or more people at home.</li><li>Note your Yaka meter reading each Sunday for two weeks to see which days use the most.</li><li>If the units per top-up dropped while the amount stayed the same, ask UMEME to check the meter.</li></ul>`;
+ if(/t-?bill|treasury|bond|fixed deposit/.test(s))return `Both are low-risk. The differences:<ul><li><b>Treasury bills</b> are sold by Bank of Uganda for 91, 182 or 364 days. You buy below face value and get the full amount at maturity. Rates are set at each auction.</li><li><b>Fixed deposits</b> are with one bank at an agreed rate. Easy to open, but breaking early usually costs interest.</li><li>Compare the latest T-bill auction rate with what your bank offers for the same term, after withholding tax on both.</li></ul>For money you won't touch until March, a 182-day bill fits your current 364-day bill well. This is general information, not regulated financial advice.`;
+ if(/sacco/.test(s))return `A SACCO is a savings and credit co-operative owned by its members.<ul><li>You buy shares and save regularly. Members can borrow, usually at better rates than a microfinance lender.</li><li>Many pay a yearly dividend. Your Teachers' SACCO paid UGX 72,000 on your 60 shares last March.</li><li>Before joining one, check it's registered, ask for the latest audited accounts and find out how quickly members can withdraw.</li></ul>You're already a member, so the question is whether to raise your monthly 200,000. Given your Term 1 goal, I'd keep it level for now.`;
+ if(/lend|owe|borrow|loan|james|brenda/.test(s))return `People owe you <b>${ugx(owedToMe())}</b> and you owe <b>${ugx(iOwe())}</b>.<ul><li>Brenda's repayment date passed on 30 Sep with ${ugx(80000)} left.</li><li>James borrowed ${ugx(50000)} today, due 31 October.</li><li>Aunt Florence is owed ${ugx(200000)} by 15 November.</li></ul>`;
+ return `I can help with questions about this cycle's spending, budgets, bills, goals, lending and investment options. Try one of the suggestions below, or ask something like "how much did I spend on food?"`;
+}
+function pushChat(me,html){S.chat.push({me,html})}
+function ask(q){if(!q.trim())return;pushChat(true,esc(q));if(cur()!=='advisor')go('advisor');else refresh();
+ const chat=$('#chat');chat.insertAdjacentHTML('beforeend',`<div class="msg ai typing" id="typing"><span></span><span></span><span></span></div>`);$('#view').scrollTop=$('#view').scrollHeight;
+ setTimeout(()=>{pushChat(false,advise(q));if(cur()==='advisor'){refresh();$('#view').scrollTop=$('#view').scrollHeight}},750)}
+
+/* ---------- whatsapp bot ---------- */
+const nowT=()=>{const n=new Date();return `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`};
+function waReply(q){const s=q.trim().toLowerCase();let m;
+ if(/ugx/i.test(q)&&/(sent|paid|received|withdr)/i.test(q)){const p=parseSMS(q);if(!p)return 'I couldn\'t read an amount in that message. Forward the full MTN or Airtel confirmation.';
+  const t=addTxn({acct:p.provider,kind:p.kind,amt:p.amt,cat:p.cat,title:p.kind==='lend'?`Loan to ${p.party}`:p.kind==='in'?`From ${p.party}`:p.party,src:'whatsapp',sms:q,d:p.date,loanWho:p.isLoan?p.party:null});
+  return `Logged ✓ <b>${ugx(p.amt)}</b> · ${catOf(t).name} · ${acct(p.provider).name}${p.isLoan?`<br>Added to your lending ledger: ${esc(p.party)} owes you ${ugx(p.amt)}.`:''}`}
+ if(s==='balance')return `<b>Balances</b><br>${S.accounts.map(a=>`${a.name}: ${ugx(a.bal)}`).join('<br>')}<br><b>Total: ${ugx(acctTotal())}</b>`;
+ if(/spent today/.test(s)){const ts=S.txns.filter(t=>t.kind==='out'&&pd(t.d)>=TODAY0);return `<b>Spent today: ${ugx(todaySpent())}</b><br>${ts.map(t=>`• ${esc(t.title)} ${num(t.amt)}`).join('<br>')}`}
+ if(s==='budget'){const l=totalBudget()-cycleSpent();return `<b>${ugx(l)} left</b> of ${ugx(totalBudget())} with ${DAYS_LEFT} days to go.<br>${S.cats.filter(c=>c.budget&&catSpent(c.id)/c.budget>=.8).map(c=>`⚠ ${c.name}: ${Math.round(catSpent(c.id)/c.budget*100)}%`).join('<br>')}`}
+ if(m=s.match(/^remind me\s+(.+?)\s+(\d{1,2})\s*([a-z]{3})/)){const mi=MON.findIndex(x=>x.toLowerCase()===m[3]);if(mi<0)return 'Use a date like "5 Oct".';const due=`${mi<9?2026:2026}-${String(mi+1).padStart(2,'0')}-${String(m[2]).padStart(2,'0')}`;const name=titleCase(m[1]);
+  const ex=S.bills.find(b=>b.name.toLowerCase().startsWith(m[1].toLowerCase()));if(ex){ex.due=due;ex.status='due'}else S.bills.push({id:nid('b'),name,kind:'Other',ic:'calendar',amt:0,due,status:'due',note:'Added from WhatsApp'});
+  return `Done ✓ I'll remind you about <b>${esc(name)}</b> on ${dlabel(due)}, 3 days and 1 day before.`}
+ return `Commands I understand:<br>• <b>balance</b><br>• <b>spent today</b><br>• <b>budget</b><br>• <b>remind me</b> [bill] [date]<br>Or forward any MoMo / Airtel Money SMS or a receipt photo.`}
+function waSend(q){if(!q.trim())return;S.wa.push({me:true,html:esc(q),time:nowT()});const r=waReply(q);S.wa.push({me:false,html:r,time:nowT()});refresh();const c=$('#wachat');c&&c.lastElementChild&&c.lastElementChild.scrollIntoView({block:'nearest'})}
+
+/* ---------- actions ---------- */
+const ACT={
+ back,close:closeSheet,
+ bgClose:(a,el,e)=>{if(e.target===el)closeSheet()},
+ lockNow:()=>showLock(),
+ onboard:()=>showOnboard(0),
+ txf:a=>{S.ui.tx=a;refresh()},
+ acf:a=>{S.ui.acct=a;refresh()},
+ lendTab:a=>{S.ui.lendTab=a;refresh()},
+ range:a=>{S.ui.range=+a;refresh()},
+ askAdvisor:a=>{ask(a)},
+ ask:a=>ask(a),
+ readAll:()=>{S.notifs.forEach(n=>n.read=true);refresh()},
+ notif:a=>{const n=S.notifs.find(x=>x.id===a);n.read=true;go(n.go)},
+ toggle:a=>{S.settings[a]=!S.settings[a];refresh();const msgs={backup:S.settings.backup?'Backed up to Google Drive, encrypted on this phone first':'Google Drive backup turned off',sms:S.settings.sms?'SMS reading on':'SMS reading off. Log mobile money by hand or via WhatsApp.',lock:S.settings.lock?'App lock on':'App lock off'};msgs[a]&&toast(msgs[a],'shield')},
+ theme:a=>{S.settings.theme=a;if(a==='system')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',a);refresh()},
+ famPrivate:()=>{S.family.privateMine=!S.family.privateMine;refresh()},
+ invite:()=>openSheet('Invite a member',`<form class="stack" data-form="invite"><label class="field"><span>Phone number</span><input name="phone" inputmode="tel" placeholder="07XX XXX XXX" required></label><label class="field"><span>Role</span><select name="role"><option>Member (sees shared bills and totals)</option><option>Student sub-account</option><option>Admin</option></select></label><button class="btn primary">Send invite</button><p class="xs muted">They'll get a link by SMS. Nothing is shared until they accept.</p></form>`),
+ sendAllowance:()=>openSheet("Send to Grace",`<form class="stack" data-form="allowance"><label class="field"><span>Amount (UGX)</span><input name="amt" type="number" inputmode="numeric" value="50000" required></label><label class="field"><span>From</span><select name="acct">${acctOptions('mtn')}</select></label><button class="btn primary">Send via mobile money</button><p class="xs muted">Opens MTN MoMo with the amount filled in. Kasente logs it when the SMS arrives.</p></form>`),
+ add:()=>openAdd('quick'),
+ addTab:a=>{['quick','form'].forEach(k=>{$('#pane-'+k).hidden=k!==a});document.querySelectorAll('[data-act="addTab"]').forEach(b=>b.classList.toggle('on',b.dataset.arg===a))},
+ tx:id=>openTx(id),
+ txDel:(id,el)=>{if(el.dataset.sure!=='1'){el.dataset.sure='1';el.textContent='Tap again to delete';return}const i=S.txns.findIndex(t=>t.id===id);const t=S.txns[i];const a=acct(t.acct);if(a)a.bal-=t.kind==='in'?t.amt:-t.amt;S.txns.splice(i,1);closeSheet();refresh();toast('Transaction deleted')},
+ acct:id=>{const a=acct(id);const ts=S.txns.filter(t=>t.acct===id).sort((x,y)=>pd(y.d)-pd(x.d)).slice(0,6);
+  openSheet(a.name,`<div class="between"><div><span class="eyebrow">${a.type}</span><div class="tnum" style="font-family:var(--f-display);font-weight:800;font-size:28px">${ugx(a.bal)}</div></div><span class="acct-dot" style="width:16px;height:16px;background:${a.c}"></span></div><div style="margin:12px 0">${spark([...a.trend.slice(0,-1),a.bal/1000],340,50,'var(--accent)',true)}</div>
+  ${id==='cash'||id==='bank'||id==='sacco'?`<form class="row" data-form="setBal" data-id="${id}" style="margin-bottom:12px"><label class="field grow"><span>${id==='cash'?'Count your cash and enter it':'Set balance'}</span><input name="bal" type="number" inputmode="numeric" value="${a.bal}"></label><button class="btn primary" style="align-self:flex-end">Update</button></form>`:`<div class="note" style="margin-bottom:12px">${ic('sms')}<span class="small">Updates automatically from ${a.name} confirmation messages.</span></div>`}
+  ${id==='bank'?`<label class="btn block" for="stmt" style="margin-bottom:12px">${ic('upload')}Import a bank statement (PDF or CSV)</label><input id="stmt" type="file" accept=".pdf,.csv" hidden data-live="stmt">`:''}
+  <b class="small">Recent</b><div class="list" style="margin-top:8px">${ts.length?ts.map(txRow).join(''):'<div class="setrow muted small">No transactions yet</div>'}</div>`)},
+ addAccount:()=>openSheet('Add an account',`<form class="stack" data-form="addAccount"><label class="field"><span>Type</span><select name="type"><option value="Mobile money">Mobile money (MTN or Airtel)</option><option value="Bank">Bank account</option><option value="SACCO">SACCO</option><option value="Investment">Investment account</option><option value="Cash">Cash envelope</option></select></label><label class="field"><span>Name</span><input name="name" placeholder="e.g. Centenary Bank" required></label><label class="field"><span>Current balance (UGX)</span><input name="bal" type="number" inputmode="numeric" placeholder="0" required></label><button class="btn primary">Add account</button></form>`),
+ smsTest:()=>{if(cur()!=='activity')go('activity');openSheet('SMS reader',`<p class="small muted" style="margin-bottom:10px">Kasente reads confirmations from MTN, Airtel and banks the moment they arrive. Pick a sample or paste one of your own messages.</p>
+  <div class="chips" style="margin-bottom:10px">${[['mtnPaid','MTN · paid'],['mtnSent','MTN · loan'],['mtnRecv','MTN · received'],['airtel','Airtel · airtime'],['umeme','MTN · UMEME']].map(([k,l])=>`<button class="chipbtn" data-act="smsSample" data-arg="${k}">${l}</button>`).join('')}</div>
+  <form class="stack" data-form="sms"><label class="field"><span>Message</span><textarea id="smsIn" name="sms" rows="4" class="mono" style="font-family:var(--f-mono);font-size:12.5px" data-live="sms">${SAMPLE_SMS.mtnPaid}</textarea></label><div id="smsOut"></div><button class="btn primary" id="smsSave">Log this transaction</button></form>
+  <p class="xs muted" style="margin-top:10px">Message formats here are illustrative. Patterns are versioned so they can be updated quickly when a telecom changes its wording.</p>`,()=>LIVE.sms())},
+ smsSample:a=>{$('#smsIn').value=SAMPLE_SMS[a];LIVE.sms()},
+ smsScope:()=>openSheet('What Kasente reads',`<div class="stack"><div class="note">${ic('check')}<span><b>Reads</b><br>Payment, transfer, deposit and withdrawal confirmations from MTN Mobile Money, Airtel Money and your bank's short code.</span></div><div class="note bad">${ic('x')}<span><b>Never reads</b><br>Personal conversations, one-time passwords (OTPs), promotions, or messages from any other sender. They are skipped before any text is looked at.</span></div><div class="note">${ic('shield')}<span>Messages are read on your phone. Only the extracted amount, date, counterparty and reference are saved, in an encrypted database.</span></div></div>`),
+ aiPayload:()=>{const p={cycle:'2026-09-25/2026-10-24',day:DAY_OF_CYCLE,income_total:cycleIncome(),budget_total:totalBudget(),spent_by_category:Object.fromEntries(S.cats.filter(c=>catSpent(c.id)).map(c=>[c.id,catSpent(c.id)])),goals:S.goals.map(g=>({target:g.target,saved:g.saved,due:g.date})),bills_next_30_days:S.bills.filter(b=>b.status!=='paid').length};
+  openSheet('Sent to the advisor',`<p class="small muted" style="margin-bottom:10px">This is everything sent with a question. No names, phone numbers, merchants or individual transactions.</p><pre class="mono" style="margin:0">${esc(JSON.stringify(p,null,2))}</pre>`)},
+ editBudget:id=>{const c=cat(id);openSheet(c.name,`<form class="stack" data-form="budget" data-id="${id}"><div class="between"><span class="muted">Spent this cycle</span><b class="tnum">${ugx(catSpent(id))}</b></div><label class="field"><span>Monthly limit (UGX)</span><input id="bl" name="limit" type="number" inputmode="numeric" step="5000" value="${c.budget}" data-live="bl"></label><input type="range" id="blr" min="0" max="${Math.max(1000000,c.budget*2)}" step="5000" value="${c.budget}" data-live="blr" aria-label="Limit slider" style="width:100%;accent-color:var(--accent)"><label class="field"><span>Name</span><input name="name" value="${esc(c.name)}"></label><button class="btn primary">Save limit</button></form>`)},
+ addCat:()=>openSheet('New category',`<form class="stack" data-form="addCat"><label class="field"><span>Name</span><input name="name" placeholder="e.g. Church & giving" required></label><label class="field"><span>Monthly limit (UGX)</span><input name="limit" type="number" inputmode="numeric" step="5000" value="50000"></label><button class="btn primary">Create category</button></form>`),
+ bill:id=>{const b=S.bills.find(x=>x.id===id);openSheet(b.name,`<div class="stack"><dl class="kv"><dt>Amount</dt><dd>~${ugx(b.amt)}</dd><dt>Due</dt><dd>${shortDate(b.due)} (${dlabel(b.due)})</dd><dt>Status</dt><dd>${b.status==='paid'?'Paid '+(b.paidOn?shortDate(b.paidOn):''):daysUntil(b.due)<0?'Late':'Upcoming'}</dd><dt>Note</dt><dd>${esc(b.note||'')}</dd><dt>Shared with household</dt><dd>${b.shared?'Yes':'No'}</dd></dl>${b.kind==='UMEME'?`<div class="note">${ic('trend')}<span class="small">Your last three top-ups: ${UMEME_HIST.map(kf).join(' → ')}. <button class="link small" data-act="askAdvisor" data-arg="My UMEME bill went up three months in a row — is this normal?">Ask why</button></span></div>`:''}${b.status!=='paid'?`<button class="btn primary" data-act="billPaid" data-arg="${id}">${ic('check')}Mark as paid</button><button class="btn" data-act="billSnooze" data-arg="${id}">Remind me tomorrow</button>`:`<button class="btn" data-act="billUnpay" data-arg="${id}">Mark as unpaid</button>`}</div>`)},
+ billPaid:id=>{const b=S.bills.find(x=>x.id===id);b.status='paid';b.paidOn='2026-10-02';closeSheet();refresh();toast(`${b.name} marked paid`)},
+ billUnpay:id=>{const b=S.bills.find(x=>x.id===id);b.status='due';b.auto=false;closeSheet();refresh()},
+ billSnooze:id=>{closeSheet();toast('Reminder set for tomorrow at 8:00','bell')},
+ addBill:()=>openSheet('Add a bill',`<form class="stack" data-form="addBill"><label class="field"><span>Bill type</span><select name="kind">${['UMEME','NWSC','DSTV / GOtv','Internet / Data','Rent','School fees','Insurance','SACCO','Loan repayment'].map(k=>`<option>${k}</option>`).join('')}</select></label><label class="field"><span>Name or provider</span><input name="name" placeholder="e.g. GOtv Max" required></label><div class="grid2"><label class="field"><span>About (UGX)</span><input name="amt" type="number" inputmode="numeric" required></label><label class="field"><span>Next due</span><input name="due" type="date" value="2026-10-15" required></label></div><label class="field"><span>Repeats</span><select name="rep"><option>Monthly</option><option>Every term</option><option>Yearly</option><option>Once</option></select></label><button class="btn primary">Add bill</button></form>`),
+ loan:id=>{const l=S.loans.find(x=>x.id===id);const left=l.amt-l.paid;openSheet(l.who,`<div class="stack"><dl class="kv"><dt>${l.dir==='out'?'Lent':'Borrowed'}</dt><dd>${ugx(l.amt)} on ${shortDate(l.date)}</dd><dt>Repaid</dt><dd>${ugx(l.paid)}</dd><dt>Outstanding</dt><dd>${ugx(left)}</dd><dt>Agreed date</dt><dd>${shortDate(l.due)}</dd><dt>Note</dt><dd>${esc(l.note)}</dd>${l.auto?'<dt>Source</dt><dd>Detected from MoMo note</dd>':''}</dl>${left>0?`<form class="row" data-form="repay" data-id="${id}"><label class="field grow"><span>Record a repayment</span><input name="amt" type="number" inputmode="numeric" value="${left}"></label><button class="btn primary" style="align-self:flex-end">Save</button></form><button class="btn" data-act="settle" data-arg="${id}">Mark fully settled</button>`:'<div class="note">'+ic('check')+'<span>Settled. Nice.</span></div>'}</div>`)},
+ settle:id=>{const l=S.loans.find(x=>x.id===id);l.paid=l.amt;closeSheet();refresh();toast(`${l.who} · settled`)},
+ addLoan:()=>openSheet('Record a loan',`<form class="stack" data-form="addLoan"><div class="seg"><label style="flex:1"><input type="radio" name="dir" value="out" checked hidden><span class="btn sm block" style="background:var(--surface)">I lent money</span></label><label style="flex:1"><input type="radio" name="dir" value="in" hidden><span class="btn sm block" style="background:transparent">I borrowed</span></label></div><label class="field"><span>Person</span><input name="who" required placeholder="Name"></label><div class="grid2"><label class="field"><span>Amount (UGX)</span><input name="amt" type="number" inputmode="numeric" required></label><label class="field"><span>Pay back by</span><input name="due" type="date" value="2026-10-31"></label></div><label class="field"><span>Note (optional)</span><input name="note" placeholder="What it was for"></label><button class="btn primary">Save</button></form>`,()=>{document.querySelectorAll('input[name=dir]').forEach(r=>r.addEventListener('change',()=>document.querySelectorAll('input[name=dir]').forEach(x=>x.nextElementSibling.style.background=x.checked?'var(--surface)':'transparent')))}),
+ contrib:id=>{const g=S.goals.find(x=>x.id===id);openSheet(g.name,`<form class="stack" data-form="contrib" data-id="${id}"><label class="field"><span>Amount (UGX)</span><input name="amt" type="number" inputmode="numeric" value="${Math.round(goalNeed(g)/1000)*1000}" required></label><label class="field"><span>From</span><select name="acct">${acctOptions('mtn')}</select></label><button class="btn primary">Add to goal</button></form>`)},
+ addGoal:()=>openGoal(),
+ addGoalPrefill:a=>{const[amt,d]=a.split('|');openGoal(+amt,d)},
+ addInv:()=>openSheet('Add a holding',`<form class="stack" data-form="addInv"><label class="field"><span>Type</span><select name="type">${Object.entries(INV_TYPES).map(([k,t])=>`<option value="${k}">${t.name}</option>`).join('')}</select></label><label class="field"><span>Name</span><input name="name" required placeholder="e.g. 182-day T-bill"></label><div class="grid2"><label class="field"><span>Amount put in</span><input name="invested" type="number" inputmode="numeric" required></label><label class="field"><span>Current value</span><input name="value" type="number" inputmode="numeric"></label></div><label class="field"><span>Details (units, rate, maturity)</span><input name="detail"></label><button class="btn primary">Add holding</button></form>`),
+ addRoute:()=>openSheet('Add a route',`<form class="stack" data-form="addRoute"><label class="field"><span>Town</span><input name="city" value="Kampala"></label><div class="grid2"><label class="field"><span>From</span><input name="a" required></label><label class="field"><span>To</span><input name="b" required></label></div><div class="grid2"><label class="field"><span>Boda low</span><input name="lo" type="number" inputmode="numeric" required></label><label class="field"><span>Boda high</span><input name="hi" type="number" inputmode="numeric" required></label></div><button class="btn primary">Save route</button></form>`),
+ editRoute:id=>{const r=route(id);openSheet(routeName(r),`<form class="stack" data-form="editRoute" data-id="${id}"><div class="grid2"><label class="field"><span>Boda low</span><input name="lo" type="number" value="${r.boda[0]}"></label><label class="field"><span>Boda high</span><input name="hi" type="number" value="${r.boda[1]}"></label></div>${r.taxi?`<div class="grid2"><label class="field"><span>Taxi low</span><input name="tlo" type="number" value="${r.taxi[0]}"></label><label class="field"><span>Taxi high</span><input name="thi" type="number" value="${r.taxi[1]}"></label></div>`:''}<button class="btn primary">Save fares</button></form>`)},
+ waCmd:a=>waSend(a),
+ waSms:()=>waSend(SAMPLE_SMS.umeme),
+ sampleReceipt:()=>{SCAN={...SAMPLE_RECEIPT,items:SAMPLE_RECEIPT.items.map(x=>[...x])};refresh()},
+ scanReset:()=>{SCAN=null;refresh()},
+ rmItem:i=>{SCAN.items.splice(+i,1);refresh()},
+ addItem:()=>{SCAN.items.push(['',0]);refresh()},
+ report:k=>openReport(k),
+ exportR:a=>toast(`${a} export runs in the phone app. This preview shows exactly what the file will contain.`,'down'),
+ wipe:()=>openSheet('Delete all data?',`<div class="stack"><p>This removes every account, transaction, goal and setting from this phone. If backup is off, it can't be recovered.</p><button class="btn danger" data-act="wipeYes">Delete everything</button><button class="btn" data-act="close">Keep my data</button></div>`),
+ wipeYes:()=>{closeSheet();toast('In the phone app this wipes the encrypted database. The prototype keeps its sample data.','info')},
+};
+function openAdd(tab){openSheet('Log a transaction',`
+ <div class="seg" style="margin-bottom:14px"><button class="on" data-act="addTab" data-arg="quick">Quick note</button><button data-act="addTab" data-arg="form">Full form</button><button data-go="scan">Receipt</button></div>
+ <form class="stack" data-form="quick" id="pane-quick"><label class="field"><span>Say it the way you'd say it</span><textarea id="qn" name="note" rows="2" data-live="note">beans and posho from Grace's stall, 12,000/=</textarea></label><div id="qnOut"></div><label class="field"><span>Paid with</span><select name="acct">${acctOptions('cash')}</select></label><button class="btn primary">Save expense</button></form>
+ <form class="stack" data-form="full" id="pane-form" hidden>
+  <div class="grid2"><label class="field"><span>Type</span><select name="kind"><option value="out">Money out</option><option value="in">Money in</option></select></label><label class="field"><span>Amount (UGX)</span><input name="amt" type="number" inputmode="numeric" required></label></div>
+  <label class="field"><span>Description</span><input name="title" placeholder="e.g. Boda to work" required></label>
+  <div class="grid2"><label class="field"><span>Category</span><select name="cat">${catOptions('food')}</select></label><label class="field"><span>Account</span><select name="acct">${acctOptions('cash')}</select></label></div>
+  <div class="grid2"><label class="field"><span>Date</span><input name="date" type="date" value="2026-10-02"></label><label class="field"><span>Route (transport)</span><select name="route">${routeOptions('')}</select></label></div>
+  <button class="btn primary">Save</button></form>`,()=>LIVE.note())}
+function openGoal(amt,date){openSheet('New savings goal',`<form class="stack" data-form="addGoal"><label class="field"><span>Goal name</span><input name="name" required placeholder="e.g. Land deposit" value="${amt?'Savings goal':''}"></label><div class="grid2"><label class="field"><span>Target (UGX)</span><input name="target" type="number" inputmode="numeric" required value="${amt||''}"></label><label class="field"><span>By</span><input name="date" type="date" required value="${date||'2027-06-30'}"></label></div><label class="field"><span>Save automatically</span><select name="auto"><option>10% of every deposit</option><option>UGX 50,000 every Friday</option><option>On payday</option><option>Manual</option></select></label><button class="btn primary">Create goal</button></form>`)}
+function openTx(id){const t=S.txns.find(x=>x.id===id);const c=catOf(t);const p=t.sms?parseSMS(t.sms):null;const v=t.route?fareVerdict(route(t.route),t.mode,t.amt):null;
+ openSheet('Transaction',`<div class="stack">
+  <div class="row"><span class="chip" style="--c:${c.c};width:52px;height:52px">${ic(c.ic,24)}</span><div class="grow"><div class="tnum" style="font-family:var(--f-display);font-weight:800;font-size:26px;color:${t.kind==='in'?'var(--good)':'var(--ink)'}">${t.kind==='in'?'+':'−'}${ugx(t.amt)}</div><div class="small muted">${esc(t.title)}</div></div></div>
+  ${v?`<div class="note ${v.k==='bad'?'bad':v.k==='warn'?'warn':''}">${ic('bike')}<span class="small"><b>${v.label}.</b> ${routeName(route(t.route))} by ${t.mode} usually costs ${ugx(v.lo)}–${num(v.hi)}.</span></div>`:''}
+  <dl class="kv"><dt>When</dt><dd>${dlabel(t.d)}, ${hm(t.d)}</dd><dt>Account</dt><dd>${acct(t.acct).name}</dd><dt>Captured from</dt><dd>${srcTag(t.src)}</dd>${p&&p.ref?`<dt>Reference</dt><dd>${p.ref}</dd>`:''}${p&&p.bal?`<dt>Balance after</dt><dd>UGX ${p.bal}</dd>`:''}</dl>
+  ${t.kind==='out'?`<label class="field"><span>Category</span><select data-live="txcat" data-id="${t.id}">${catOptions(t.cat)}</select></label>`:''}
+  ${t.sms?`<div class="field"><span>Original message</span><div class="mono">${esc(t.sms)}</div></div>`:''}
+  <button class="btn danger" data-act="txDel" data-arg="${t.id}">Delete transaction</button></div>`)}
+function openReport(k){const segs=S.cats.filter(c=>c.budget||catSpent(c.id));const T={monthly:'Monthly summary · Oct cycle',annual:'Annual overview · 2026',custom:'Custom range'}[k];
+ const body=k==='custom'?`<div class="grid2"><label class="field"><span>From</span><input type="date" value="2026-08-25"></label><label class="field"><span>To</span><input type="date" value="2026-10-02"></label></div><div class="note">${ic('info')}<span class="small">Covers 39 days · ${S.txns.length+46} transactions · ${ugx(2648000)} spent</span></div>`
+ :k==='annual'?`<dl class="kv"><dt>Income (12 months)</dt><dd>${ugx(HIST.inc.reduce((a,b)=>a+b,0))}</dd><dt>Spending</dt><dd>${ugx(HIST.exp.reduce((a,b)=>a+b,0))}</dd><dt>Saved</dt><dd>${ugx(HIST.inc.reduce((a,b)=>a+b,0)-HIST.exp.reduce((a,b)=>a+b,0))}</dd><dt>Investment growth</dt><dd>${ugx(invTotal()-S.inv.reduce((a,x)=>a+x.invested,0))}</dd><dt>Net worth change</dt><dd>${ugx(netWorth()-HIST.nw[0]*1e6)}</dd></dl><div class="note">${ic('sparkle')}<span class="small">Your best year on record. December and June were the expensive months; both had school fees plus family events.</span></div>`
+ :`<dl class="kv"><dt>Income</dt><dd>${ugx(cycleIncome())}</dd><dt>Spending</dt><dd>${ugx(cycleSpent())}</dd><dt>Budget</dt><dd>${ugx(totalBudget())}</dd></dl><div class="list" style="margin-top:4px">${segs.map(c=>{const s=catSpent(c.id);return `<div class="setrow" style="padding:8px 12px"><span class="grow"><b style="font-size:13.5px">${c.name}</b></span><span class="small tnum">${num(s)} / ${c.budget?num(c.budget):'—'}</span>${c.budget&&s>c.budget?'<span class="pill bad">Over</span>':''}</div>`}).join('')}</div><div class="note">${ic('sparkle')}<span class="small"><b>Commentary.</b> The fixed costs are paid early, which is good. Food and airtime are the two categories to watch for the rest of the cycle.</span></div>`;
+ openSheet(T,`<div class="stack">${body}<div class="grid2"><button class="btn primary" data-act="exportR" data-arg="PDF">${ic('down',18)}PDF</button><button class="btn" data-act="exportR" data-arg="Excel">${ic('down',18)}Excel</button></div></div>`)}
+
+/* ---------- live inputs ---------- */
+const LIVE={
+ q:el=>{S.ui.q=el.value;$('#txlist').innerHTML=txListHTML()},
+ note:()=>{const el=$('#qn');if(!el)return;const p=parseNote(el.value);const c=cat(p.cat);$('#qnOut').innerHTML=p.amt?`<div class="card row" style="background:var(--bg);padding:12px"><span class="chip" style="--c:${c.c}">${ic(c.ic)}</span><div class="grow"><b class="small">${esc(p.title)}</b><div class="xs muted">${c.name} · suggested</div></div><b class="tnum">${ugx(p.amt)}</b></div>`:`<p class="xs muted">Include an amount, like 12,000 or 12k.</p>`},
+ sms:()=>{const el=$('#smsIn');if(!el)return;const p=parseSMS(el.value);$('#smsSave').disabled=!p;
+  $('#smsOut').innerHTML=p?`<div class="card" style="background:var(--bg);padding:12px"><div class="between" style="margin-bottom:8px"><b class="small">Read from message</b><span class="pill ${p.kind==='in'?'good':p.isLoan?'sun':'accent'}">${p.isLoan?'Loan detected':p.type}</span></div><dl class="kv" style="margin:0"><dt>Amount</dt><dd>${ugx(p.amt)}</dd><dt>${p.kind==='in'?'From':'To'}</dt><dd>${esc(p.party)}</dd><dt>When</dt><dd>${dlabel(p.date)} ${hm(p.date)}</dd><dt>Wallet</dt><dd>${acct(p.provider).name}</dd>${p.fee?`<dt>Fee</dt><dd>UGX ${p.fee}</dd>`:''}${p.bal?`<dt>Balance after</dt><dd>UGX ${p.bal}</dd>`:''}${p.ref?`<dt>Reference</dt><dd>${p.ref}</dd>`:''}<dt>Category</dt><dd>${p.kind==='in'?'Income':p.isLoan?'Lending ledger':cat(p.cat).name}</dd></dl></div>`:`<div class="note warn">${ic('alert')}<span class="small">This doesn't look like a money confirmation, so Kasente would skip it.</span></div>`},
+ fare:()=>{const r=route($('#fr').value),m=$('#fm').value,a=+$('#fa').value;const v=fareVerdict(r,m,a);
+  $('#fareOut').innerHTML=!v?`<div class="note">${ic('info')}<span class="small">No ${m} fare recorded for this route yet.</span></div>`:!a?'':`<div class="note ${v.k==='bad'?'bad':v.k==='warn'?'warn':''}">${ic(v.k==='good'?'check':'alert')}<span><b>${v.label}.</b> ${routeName(r)} by ${m==='boda'?'boda':'taxi'} is usually ${ugx(v.lo)}–${num(v.hi)}.${a>v.hi?` You paid ${num(a-v.hi)} more than the top of the range.`:''}</span></div>`},
+ txcat:el=>{const t=S.txns.find(x=>x.id===el.dataset.id);t.cat=el.value;refresh();toast(`Moved to ${cat(t.cat).name}. Similar transactions will follow.`)},
+ bl:el=>{$('#blr').value=el.value},
+ blr:el=>{$('#bl').value=el.value},
+ threshold:el=>{S.settings.threshold=+el.value;toast(`Budget alerts at ${el.value}%`,'bell')},
+ lang:el=>{S.settings.lang=el.value;toast(el.value==='lg'?'Luganda (beta) turned on for the advisor and menus':'English','info')},
+ item:el=>{SCAN.items[+el.dataset.i][+el.dataset.k]=el.dataset.k==='1'?+el.value:el.value;$('#scanTotal').textContent=ugx(SCAN.items.reduce((a,x)=>a+(+x[1]||0),0))},
+ rcpt:el=>{const f=el.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{SCAN={...SAMPLE_RECEIPT,items:SAMPLE_RECEIPT.items.map(x=>[...x]),img:r.result};refresh();toast('Read your photo. Sample items are shown, as the prototype has no OCR engine.','info')};r.readAsDataURL(f)},
+ waFile:el=>{if(!el.files[0])return;S.wa.push({me:true,html:'📷 Receipt photo',time:nowT()});addTxn({acct:'cash',kind:'out',amt:52000,cat:'food',title:'Kisaasi Fresh Mart',src:'whatsapp'});S.wa.push({me:false,html:`Scanned ✓ Kisaasi Fresh Mart · 6 items · <b>${ugx(52000)}</b> logged under Food & Groceries (Cash).`,time:nowT()});refresh()},
+ stmt:el=>{if(el.files[0]){closeSheet();toast(`Imported ${esc(el.files[0].name)}. In the app, new rows appear for you to review.`,'upload')}},
+};
+
+/* ---------- forms ---------- */
+const FORMS={
+ quick:(fd)=>{const p=parseNote(fd.get('note'));if(!p.amt){LIVE.note();return}addTxn({acct:fd.get('acct'),kind:'out',amt:p.amt,cat:p.cat,title:p.title,src:'manual'});closeSheet();refresh()},
+ full:(fd)=>{const amt=+fd.get('amt');if(!amt)return;const kind=fd.get('kind');const r=fd.get('route');addTxn({acct:fd.get('acct'),kind,amt,cat:kind==='in'?'income':fd.get('cat'),title:fd.get('title'),src:'manual',d:fd.get('date')+' '+stamp().slice(11),...(r?{route:r,mode:'boda'}:{})});closeSheet();refresh()},
+ sms:(fd)=>{const raw=fd.get('sms');const p=parseSMS(raw);if(!p)return;addTxn({acct:p.provider,kind:p.kind,amt:p.amt,cat:p.cat,title:p.kind==='lend'?`Loan to ${p.party}`:p.kind==='in'?`From ${p.party}`:p.party,src:'sms',sms:raw,d:p.date,loanWho:p.isLoan?p.party:null});closeSheet();refresh()},
+ fare:(fd)=>{const r=route(fd.get('route'));addTxn({acct:'mtn',kind:'out',amt:+fd.get('amt'),cat:'transport',title:`${fd.get('mode')==='boda'?'Boda':'Taxi'} · ${routeName(r)}`,src:'manual',route:r.id,mode:fd.get('mode')});refresh()},
+ ask:(fd,f)=>{const q=fd.get('q');f.reset();ask(q)},
+ wa:(fd,f)=>{waSend(fd.get('q'));},
+ budget:(fd,f)=>{const c=cat(f.dataset.id);c.budget=+fd.get('limit')||0;c.name=fd.get('name')||c.name;closeSheet();refresh();toast(`${c.name} limit set to ${ugx(c.budget)}`)},
+ addCat:(fd)=>{const id=nid('c');const cols=['#B0588F','#4C8C8A','#9C7A2E','#5A6FC4'];S.cats.splice(S.cats.length-1,0,{id,name:fd.get('name'),c:cols[S.cats.length%4],ic:'dots',budget:+fd.get('limit')||0});closeSheet();refresh();toast('Category created')},
+ addBill:(fd)=>{const k=fd.get('kind');const icm={UMEME:'bolt',NWSC:'bolt','DSTV / GOtv':'tv','Internet / Data':'signal',Rent:'house','School fees':'book',Insurance:'shield',SACCO:'coins','Loan repayment':'wallet'};S.bills.push({id:nid('b'),name:fd.get('name'),kind:k,ic:icm[k],amt:+fd.get('amt'),due:fd.get('due'),status:'due',note:fd.get('rep')});closeSheet();refresh();toast(`Reminder set for ${dlabel(fd.get('due'))}`,'bell')},
+ repay:(fd,f)=>{const l=S.loans.find(x=>x.id===f.dataset.id);l.paid=Math.min(l.amt,l.paid+(+fd.get('amt')||0));closeSheet();refresh();toast(l.paid>=l.amt?`${l.who} · settled`:`${ugx(l.amt-l.paid)} still outstanding`)},
+ addLoan:(fd)=>{S.loans.unshift({id:nid('l'),dir:fd.get('dir'),who:fd.get('who'),amt:+fd.get('amt'),paid:0,date:'2026-10-02',due:fd.get('due'),note:fd.get('note')||''});S.ui.lendTab='open';closeSheet();refresh();toast('Recorded. You\'ll get a private reminder before the date.','bell')},
+ contrib:(fd,f)=>{const g=S.goals.find(x=>x.id===f.dataset.id);const a=+fd.get('amt');g.saved+=a;addTxn({acct:fd.get('acct'),kind:'out',amt:a,cat:'savings',title:`Goal: ${g.name}`,src:'manual'});closeSheet();refresh()},
+ addGoal:(fd)=>{S.goals.push({id:nid('g'),name:fd.get('name'),target:+fd.get('target'),saved:0,date:fd.get('date'),rate:0,auto:fd.get('auto'),c:'#DD7A22'});closeSheet();if(cur()!=='goals')go('goals');else refresh();toast('Goal created')},
+ addInv:(fd)=>{const inv=+fd.get('invested');S.inv.push({id:nid('i'),type:fd.get('type'),name:fd.get('name'),detail:fd.get('detail')||'',invested:inv,value:+fd.get('value')||inv});closeSheet();refresh();toast('Holding added')},
+ addRoute:(fd)=>{S.routes.push({id:nid('r'),city:fd.get('city')||'Kampala',a:fd.get('a'),b:fd.get('b'),boda:[+fd.get('lo'),+fd.get('hi')],taxi:null});closeSheet();refresh();toast('Route added to your fare index')},
+ editRoute:(fd,f)=>{const r=route(f.dataset.id);r.boda=[+fd.get('lo'),+fd.get('hi')];if(r.taxi)r.taxi=[+fd.get('tlo'),+fd.get('thi')];closeSheet();refresh();toast('Fares updated')},
+ setBal:(fd,f)=>{const a=acct(f.dataset.id);a.bal=+fd.get('bal');closeSheet();refresh();toast(`${a.name} set to ${ugx(a.bal)}`)},
+ addAccount:(fd)=>{const cols={'Mobile money':'#F5C000',Bank:'#2558B0',SACCO:'#8D6B42',Investment:'#5B6FD6',Cash:'#2F8A5B'};const b=+fd.get('bal');S.accounts.push({id:nid('a'),name:fd.get('name'),type:fd.get('type'),bal:b,c:cols[fd.get('type')],trend:[b/1000,b/1000]});closeSheet();refresh();toast('Account added')},
+ scan:(fd)=>{const tot=SCAN.items.reduce((a,x)=>a+(+x[1]||0),0);addTxn({acct:fd.get('acct'),kind:'out',amt:tot,cat:fd.get('cat'),title:fd.get('merchant')||'Receipt',src:'receipt',d:fd.get('date')+' 18:42'});SCAN=null;refresh()},
+ invite:()=>{closeSheet();toast('Invite sent by SMS')},
+ allowance:(fd)=>{const a=+fd.get('amt');S.family.student.allowance+=a;addTxn({acct:fd.get('acct'),kind:'out',amt:a,cat:'family',title:'Allowance · Grace',src:'manual'});closeSheet();refresh()},
+};
+
+/* ---------- lock + onboarding ---------- */
+let pin='',fails=0,lockedUntil=0;
+function showLock(){pin='';const L=$('#lock');L.hidden=false;drawLock()}
+function drawLock(msg){const L=$('#lock');const wait=Math.max(0,Math.ceil((lockedUntil-Date.now())/1000));
+ L.innerHTML=`<span class="logo-mark lg">K</span><div class="lock-name">Kasente</div><p id="lockMsg">${wait?`Too many attempts. Try again in ${wait}s.`:msg||'Enter your PIN'}</p><div class="pin-dots" id="dots">${[0,1,2,3].map(i=>`<i class="${i<pin.length?'f':''}"></i>`).join('')}</div><p class="xs" style="opacity:.75">Prototype PIN: 2580</p>
+ <div class="keypad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-act="key" data-arg="${n}" ${wait?'disabled':''}>${n}</button>`).join('')}<button data-act="bio" aria-label="Use fingerprint" ${wait||!S.settings.bio?'disabled':''}>${ic('finger',28)}</button><button data-act="key" data-arg="0" ${wait?'disabled':''}>0</button><button data-act="key" data-arg="del" aria-label="Delete" ${wait?'disabled':''}>${ic('del',26)}</button></div>`;
+ if(wait)setTimeout(()=>drawLock(),1000)}
+ACT.key=k=>{if(k==='del'){pin=pin.slice(0,-1);drawLock();return}if(pin.length>=4)return;pin+=k;drawLock();
+ if(pin.length===4)setTimeout(()=>{if(pin==='2580'){fails=0;$('#lock').hidden=true;toast('Welcome back, Sarah','lock')}else{fails++;pin='';if(fails>=5){lockedUntil=Date.now()+30000;fails=0;drawLock()}else{drawLock(`Wrong PIN · ${5-fails} tries left`);$('#dots').classList.add('shake')}}},160)};
+ACT.bio=()=>{$('#lock').hidden=true;pin='';toast('Unlocked with fingerprint','finger')};
+const ONB=[
+ {t:'Kasente remembers your money for you',p:'Kasente is Luganda for money. Boda fares, school fees, MoMo, SACCO. One place, built for how Ugandans actually spend.',art:'k'},
+ {t:'Your MoMo messages become your records',p:'Allow SMS access and every MTN and Airtel confirmation is logged on its own. Kasente skips personal chats and OTPs.',art:'sms'},
+ {t:'Your data stays on your phone',p:'Everything is stored encrypted on this device and works offline. Backup to your own Google Drive is optional. No ads, no data selling.',art:'shield'},
+];
+function showOnboard(i){const o=$('#onb');o.hidden=false;const s=ONB[i];
+ o.innerHTML=`<div class="between"><span class="logo-mark">K</span><button class="link" data-act="onbDone">Skip</button></div><div class="onb-art">${s.art==='k'?`<div style="position:relative;width:200px;height:200px">${donut([{c:'var(--accent)',v:45},{c:'var(--sun)',v:25},{c:'#DD7A22',v:15},{c:'#3B76CC',v:15}],200,30)}<span class="logo-mark lg" style="position:absolute;inset:0;margin:auto">K</span></div>`:s.art==='sms'?`<div class="stack" style="width:100%;max-width:300px"><div class="mono">${SAMPLE_SMS.mtnPaid}</div><div style="text-align:center;color:var(--accent)">${ic('down',28)}</div><div class="list">${txRow(S.txns.find(t=>t.d==='2026-10-02 07:45'))}</div></div>`:`<span class="chip" style="--c:var(--accent);width:140px;height:140px;border-radius:44px">${ic('shield',72)}</span>`}</div><h2>${s.t}</h2><p>${s.p}</p><div class="dots">${ONB.map((_,j)=>`<i class="${j===i?'on':''}"></i>`).join('')}</div>${i<ONB.length-1?`<button class="btn primary block" data-act="onbNext" data-arg="${i+1}">Continue</button>`:`<button class="btn sun block" data-act="onbDone">Allow SMS access and start</button><button class="btn block" style="margin-top:8px;background:transparent" data-act="onbDone">Not now, I'll log manually</button>`}`}
+ACT.onbNext=i=>showOnboard(+i);
+ACT.onbDone=()=>{$('#onb').hidden=true;go('home')};
+
+/* ---------- init ---------- */
+S.chat.push({me:false,html:`Hi Sarah. I can see this cycle's totals by category, your goals and upcoming bills. Ask me anything about your money, in plain words.`});
+S.chat.push({me:true,html:'Am I on track this month?'});S.chat.push({me:false,html:advise('Am I on track this month?')});
+S.wa.push({me:true,html:'<i>Forwarded</i><br>'+esc(SAMPLE_SMS.mtnPaid),time:'07:46'});
+S.wa.push({me:false,html:`Logged ✓ <b>UGX 4,000</b> · Transport · MTN MoMo<br>Normal fare for City Centre → Ntinda.`,time:'07:46'});
+S.wa.push({me:true,html:'spent today',time:'12:41'});
+S.wa.push({me:false,html:`<b>Spent today: UGX 12,000</b><br>• Boda · City Centre → Ntinda 4,000<br>• Rice & beans · school canteen 8,000`,time:'12:41'});
+
+$('#nav').innerHTML=`<button data-go="home" data-nav="home">${ic('home',22)}<span>Home</span></button><button data-go="activity" data-nav="activity">${ic('list',22)}<span>Activity</span></button><button class="fab" data-act="add" aria-label="Log a transaction">${ic('plus',28)}</button><button data-go="advisor" data-nav="advisor">${ic('sparkle',22)}<span>Advisor</span></button><button data-go="more" data-nav="more">${ic('grid',22)}<span>More</span></button>`;
+$('#guideList').innerHTML=[['4.1','Accounts & balances','home'],['4.2','SMS transaction capture','sms'],['4.3','Receipt scanning','scan'],['4.4','WhatsApp bot','whatsapp'],['4.5','Categories & budgets','budgets'],['4.6','Transport fare tracker','transport'],['4.7','Bill reminders','bills'],['4.8','Lending & borrowing','lending'],['4.9','Savings goals','goals'],['4.10','Investments','invest'],['4.11','Family & groups','family'],['4.12','AI advisor','advisor'],['4.13','Analytics & reports','analytics'],['6','Privacy & security','settings'],['—','App lock','lock'],['—','Welcome tour','onb']].map(([n,l,g])=>`<li><button ${g==='sms'?'data-act="smsTest"':g==='lock'?'data-act="lockNow"':g==='onb'?'data-act="onboard"':`data-go="${g}"`}><span>${n}</span>${l}</button></li>`).join('');
+
+document.addEventListener('click',e=>{const t=e.target.closest('[data-go],[data-act]');if(!t)return;
+ if(t.dataset.act==='bgClose'){if(e.target===t)closeSheet();return}
+ if(t.dataset.go!==undefined&&t.dataset.go){e.preventDefault();$('#onb').hidden=true;go(t.dataset.go);return}
+ const f=ACT[t.dataset.act];if(f){e.preventDefault();f(t.dataset.arg,t,e)}});
+document.addEventListener('submit',e=>{e.preventDefault();const f=e.target;FORMS[f.dataset.form]&&FORMS[f.dataset.form](new FormData(f),f)});
+document.addEventListener('input',e=>{const k=e.target.dataset.live;if(k&&LIVE[k]&&e.target.type!=='file'&&e.target.tagName!=='SELECT')LIVE[k](e.target)});
+document.addEventListener('change',e=>{const k=e.target.dataset.live;if(k&&LIVE[k]&&(e.target.type==='file'||e.target.tagName==='SELECT'))LIVE[k](e.target)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+render();
+</script>

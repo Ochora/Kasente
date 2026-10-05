@@ -30,17 +30,23 @@ import java.io.InputStream;
 public class MainActivity extends Activity {
     static final String HOST = "appassets.androidplatform.net";
     static final String START = "https://" + HOST + "/index.html";
-    static final int REQ_SMS = 11, REQ_FILE = 12, REQ_NOTIF = 13;
+    static final int REQ_SMS = 11, REQ_FILE = 12, REQ_NOTIF = 13, REQ_RECEIPT = 14;
 
     WebView web;
     ValueCallback<Uri[]> fileCallback;
     Uri cameraUri;
     long pausedAt = 0;
     boolean selfLaunched = false;
+    /** Photo the camera is writing to for a receipt; survives Android closing the app meanwhile. */
+    Uri receiptUri;
+    /** Result waiting for the page to collect with KasenteNative.takeReceipt(). */
+    volatile String pendingReceipt = null;
+    android.webkit.WebView printView;
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
+        if (state != null && state.getString("receiptUri") != null) receiptUri = Uri.parse(state.getString("receiptUri"));
         web = new WebView(this);
         setContentView(web);
 
@@ -63,7 +69,12 @@ public class MainActivity extends Activity {
                 if (path == null || path.equals("/")) path = "/index.html";
                 String type = mime(path);
                 try {
-                    InputStream in = getAssets().open(path.substring(1));
+                    InputStream in;
+                    if (path.startsWith("/receipts/") && !path.contains("..")) {
+                        in = new java.io.FileInputStream(new java.io.File(getFilesDir(), path.substring(1)));
+                    } else {
+                        in = getAssets().open(path.substring(1));
+                    }
                     return new WebResourceResponse(type, type.startsWith("text") ? "utf-8" : null, in);
                 } catch (Exception e) {
                     return new WebResourceResponse("text/plain", "utf-8", 404, "Not found", null,
@@ -119,6 +130,7 @@ public class MainActivity extends Activity {
         if (p.endsWith(".css")) return "text/css";
         if (p.endsWith(".woff2")) return "font/woff2";
         if (p.endsWith(".png")) return "image/png";
+        if (p.endsWith(".jpg") || p.endsWith(".jpeg")) return "image/jpeg";
         if (p.endsWith(".svg")) return "image/svg+xml";
         if (p.endsWith(".json")) return "application/json";
         return "application/octet-stream";
@@ -174,8 +186,57 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
+        if (receiptUri != null) out.putString("receiptUri", receiptUri.toString());
+    }
+
+    /** Opens the camera (or the gallery) for a receipt. The result is read with on-device text recognition. */
+    void scanReceipt(boolean camera) {
+        try {
+            Intent i;
+            receiptUri = null;
+            if (camera) {
+                java.io.File dir = new java.io.File(getCacheDir(), "camera");
+                dir.mkdirs();
+                java.io.File f = new java.io.File(dir, "receipt_" + System.currentTimeMillis() + ".jpg");
+                receiptUri = androidx.core.content.FileProvider.getUriForFile(this, getPackageName() + ".files", f);
+                i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                i.putExtra(MediaStore.EXTRA_OUTPUT, receiptUri);
+                i.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            } else {
+                i = new Intent(Intent.ACTION_GET_CONTENT);
+                i.setType("image/*");
+                i.addCategory(Intent.CATEGORY_OPENABLE);
+            }
+            selfLaunched = true;
+            startActivityForResult(i, REQ_RECEIPT);
+        } catch (Exception e) {
+            receiptUri = null;
+            deliverReceipt(Receipts.error(camera ? "Couldn't open the camera: " + e.getMessage() : "Couldn't open your photos."));
+        }
+    }
+
+    void deliverReceipt(String json) {
+        pendingReceipt = json;
+        js("window.kasenteReceiptReady&&kasenteReceiptReady()");
+    }
+
+    @Override
     protected void onActivityResult(int req, int result, Intent data) {
         super.onActivityResult(req, result, data);
+        if (req == REQ_RECEIPT) {
+            Uri src = null;
+            if (result == RESULT_OK) src = (data != null && data.getData() != null) ? data.getData() : receiptUri;
+            receiptUri = null;
+            if (src == null) {
+                deliverReceipt(Receipts.error("cancelled"));
+                return;
+            }
+            js("window.kasenteReceiptReading&&kasenteReceiptReading()");
+            Receipts.read(this, src);
+            return;
+        }
         if (req != REQ_FILE || fileCallback == null) return;
         Uri[] out = null;
         if (result == RESULT_OK) {

@@ -50,3 +50,10 @@ android {
         checkReleaseBuilds false
     }
 }
+
+dependencies {
+    // Sharing photos and files safely with the camera and other apps
+    implementation 'androidx.core:core:1.13.1'
+    // Reading receipts on the phone, offline (Latin script: English, Swahili, French…)
+    implementation 'com.google.mlkit:text-recognition:16.0.1'
+}
