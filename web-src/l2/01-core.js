@@ -151,7 +151,7 @@ const subOf=t=>t.sub||(t.kind==='out'?guessSub(t.cat,t.title+' '+(t.sms||'')):nu
 /* ---------- kinds of transaction ---------- */
 /* in: income · out: spending · lend: lent to someone · move: withdrawal to cash
    borrow: loan or advance received (not income) · repay: repaying a loan or advance (not spending) */
-const effOf=t=>(t.kind==='in'||t.kind==='borrow')?t.amt:-t.amt;
+const effOf=t=>(t.kind==='in'||t.kind==='borrow'||t.kind==='topup')?t.amt:-t.amt;
 const baseCatOf=catOf;
 catOf=t=>t.kind==='borrow'?{name:t.debt==='advance'?'Advance received':'Loan received',c:'var(--warn)',ic:'hand'}:t.kind==='repay'?{name:t.debt==='advance'?'Advance repaid':'Loan repayment',c:'var(--muted)',ic:'hand'}:baseCatOf(t);
 srcTag=s=>({sms:'SMS',receipt:'Receipt',manual:'Manual',whatsapp:'WhatsApp',import:'Import'}[s]||'');

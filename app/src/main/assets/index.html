@@ -2006,7 +2006,7 @@ const subOf=t=>t.sub||(t.kind==='out'?guessSub(t.cat,t.title+' '+(t.sms||'')):nu
 /* ---------- kinds of transaction ---------- */
 /* in: income · out: spending · lend: lent to someone · move: withdrawal to cash
    borrow: loan or advance received (not income) · repay: repaying a loan or advance (not spending) */
-const effOf=t=>(t.kind==='in'||t.kind==='borrow')?t.amt:-t.amt;
+const effOf=t=>(t.kind==='in'||t.kind==='borrow'||t.kind==='topup')?t.amt:-t.amt;
 const baseCatOf=catOf;
 catOf=t=>t.kind==='borrow'?{name:t.debt==='advance'?'Advance received':'Loan received',c:'var(--warn)',ic:'hand'}:t.kind==='repay'?{name:t.debt==='advance'?'Advance repaid':'Loan repayment',c:'var(--muted)',ic:'hand'}:baseCatOf(t);
 srcTag=s=>({sms:'SMS',receipt:'Receipt',manual:'Manual',whatsapp:'WhatsApp',import:'Import'}[s]||'');
@@ -2093,7 +2093,7 @@ function curCode(tok){const t=String(tok||'').toLowerCase().replace(/[\s.$]/g,''
  if(/^(ugx|ush)/.test(t))return'UGX';if(/^(ksh|kes)/.test(t))return'KES';if(/^(tsh|tzs)/.test(t))return'TZS';if(/^(rwf|frw)/.test(t))return'RWF';if(/^(bif|fbu)/.test(t))return'BIF';if(t==='cdf')return'CDF';
  if(t==='ngn'||t==='\u20a6')return'NGN';if(/^gh/.test(t))return'GHS';if(t==='zmw')return'ZMW';if(t==='mwk')return'MWK';if(t==='etb'||t==='birr')return'ETB';if(t==='xof')return'XOF';if(t==='xaf')return'XAF';
  if(/cfa/.test(t))return h==='XAF'||h==='XOF'?h:'XOF';if(/^(usd|us)$/.test(t))return'USD';if(t==='zar')return'ZAR';if(/^shs?$/.test(t))return['UGX','KES','TZS'].includes(h)?h:'UGX';return h}
-function smsAmounts(s){const out=[];const re=AMT_RE();let m;while((m=re.exec(s))){const tok=m[1]||m[4];const v=parseFloat((m[2]||m[3]).replace(/,/g,''));if(v>0)out.push({cur:curCode(tok),amt:v,i:m.index,end:m.index+m[0].length})}return out}
+function smsAmounts(s){const out=[];const re=AMT_RE();let m;while((m=re.exec(s))){const tok=m[1]||m[4];const v=parseFloat((m[2]||m[3]).replace(/,/g,''));if(v>=0)out.push({cur:curCode(tok),amt:v,i:m.index,end:m.index+m[0].length})}return out}
 const near=(s,list,re,win)=>{for(const a of list){const before=s.slice(Math.max(0,a.i-(win||28)),a.i);if(re.test(before))return a}return null};
 const DEBT_RE=/\b(advance|mokash|wewole|overdraft|quick ?loan|loan|fuliza|m-?shwari|okoa|timiza|songesha|nivushe|kcb m-?pesa|credit line)\b/i;
 const INVEST_RE=/\b(xeno|nssf|unit trust|money market fund|britam|old mutual|icea|sanlam|cic asset|portfolio|fund value|treasury bill|t-?bill)\b/i;
@@ -2116,9 +2116,9 @@ function smsDate(s){let m=s.match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{2}:\d{2})/);if
  if(m){let y=+m[3];if(y<100)y+=2000;let h=m[4]?+m[4]:12;if(m[6]&&/pm/i.test(m[6])&&h<12)h+=12;if(m[6]&&/am/i.test(m[6])&&h===12)h=0;return `${y}-${String(+m[2]).padStart(2,'0')}-${String(+m[1]).padStart(2,'0')} ${String(h).padStart(2,'0')}:${m[5]||'00'}`}return null}
 function readMoneySms(raw,sender,when){
  const s=String(raw||'').replace(/\s+/g,' ').trim(),low=s.toLowerCase();sender=String(sender||'');
- const am=smsAmounts(s);if(!am.length)return null;
+ const am=smsAmounts(s);if(!am.some(a=>a.amt>0))return null;
  if(/\b(otp|one[- ]time|verification code|code is|password|pin is|failed|unsuccessful|insufficient|declined|not successful|reversed|reversal|cancelled)\b/i.test(s))return null;
- const main=am[0],cur=main.cur;
+ const main=am.find(a=>a.amt>0),cur=main.cur;
  const fee=near(s,am,/(fee|charge|transaction cost|commission)s?[^.\d]{0,12}$/i,30);
  const balA=near(s,am,/(balance|bal|avl\.?)[^.\d]{0,22}$/i,34);
  const pid=smsProvider(sender,s,cur);const p=provider(pid)||{};
@@ -2252,20 +2252,21 @@ window.acctOptions=sel=>S.accounts.map(a=>`<option value="${a.id}" ${a.id===sel?
 
 /* ---------- accounts screen and details ---------- */
 SCREENS.accounts=()=>{const groups=['momo','bank','cash','sacco','invest','other'];const liquid=S.accounts.filter(a=>['momo','bank','cash'].includes(a.kind)).reduce((s,a)=>s+inHome(a),0);
- const credit=S.accounts.reduce((s,a)=>s+Math.max(0,(a.advLimit||0)-(a.advUsed||0))*acctRate(a),0);const owed=providerDebt();
+ const credit=S.accounts.reduce((s,a)=>s+advAvail(a)*acctRate(a),0);const owed=providerDebt();
  return `<div class="kpi"><div class="stat"><span>Money you can use</span><b>${ugx(liquid)}</b></div><div class="stat"><span>All accounts</span><b>${ugx(acctTotal())}</b></div>${owed?`<div class="stat"><span>Owed to providers</span><b class="liab">${ugx(owed)}</b></div>`:''}${credit?`<div class="stat"><span>Advance still available</span><b>${ugx(credit)}</b></div>`:''}</div>
- ${groups.map(g=>{const list=S.accounts.filter(a=>a.kind===g);if(!list.length)return'';return `<div class="sec-head"><h2>${KIND_LABEL[g]}</h2><span class="small muted tnum">${ugx(list.reduce((s,a)=>s+inHome(a),0))}</span></div><div class="list">${list.map(a=>{const debt=(a.advUsed||0)+(a.loanOwed||0);return `<button class="tx" data-act="acct" data-arg="${a.id}">${acctBadge(a,40)}<span class="tx-main"><span class="tx-title">${esc(a.name)}</span><span class="tx-sub">${debt?`<span class="liab">Owes ${money(debt,a.currency)}</span>`:esc((provider(a.provider)||{}).name||KIND_LABEL[a.kind])}${a.currency!==CUR()?' · '+a.currency:''}</span></span><span class="tx-amt">${fmtNum(a.bal,a.currency)}${a.currency!==CUR()?`<small>≈ ${kf(inHome(a))}</small>`:''}</span></button>`}).join('')}</div>`}).join('')}
+ ${groups.map(g=>{const list=S.accounts.filter(a=>a.kind===g);if(!list.length)return'';return `<div class="sec-head"><h2>${KIND_LABEL[g]}</h2><span class="small muted tnum">${ugx(list.reduce((s,a)=>s+inHome(a),0))}</span></div><div class="list">${list.map(a=>{const debt=(a.advUsed||0)+(a.loanOwed||0);return `<button class="tx" data-act="acct" data-arg="${a.id}">${acctBadge(a,40)}<span class="tx-main"><span class="tx-title">${esc(a.name)}</span><span class="tx-sub">${advLine(a)?`<span class="${a.advUsed?'liab':''}">${advLine(a)}</span>`:a.loanOwed?`<span class="liab">Loan ${money(a.loanOwed,a.currency)}</span>`:esc((provider(a.provider)||{}).name||KIND_LABEL[a.kind])}${a.currency!==CUR()?' · '+a.currency:''}</span></span><span class="tx-amt ${acctReads(a)<0?'liab':''}">${signedNum(acctReads(a),a.currency)}${a.currency!==CUR()?`<small>≈ ${kf(inHome(a))}</small>`:''}</span></button>`}).join('')}</div>`}).join('')}
  <button class="btn block primary" data-act="addAccount">${ic('plus')}Add an account</button>
  <div class="note">${ic('info')}<span class="small">Mobile money and bank balances update from confirmation messages. Advances and loans from MTN, Airtel, M-Pesa and banks are tracked as money you owe, not as income.</span></div>`};
 const acctSheetBody=a=>{const ts=S.txns.filter(t=>t.acct===a.id).sort((x,y)=>pd(y.d)-pd(x.d)).slice(0,6);const cur=a.currency;
- const hasCredit=a.advLimit||a.advUsed||a.loanLimit||a.loanOwed;
+ const hasCredit=a.advLimit||a.advUsed||a.loanLimit||a.loanOwed||a.saved;
  const credit=hasCredit?`<div class="card stack" style="gap:10px;background:var(--bg)"><b>Credit and loans</b>
-  ${a.advLimit||a.advUsed?`<div class="stack" style="gap:5px"><div class="between small"><span>Advance used</span><b class="tnum ${a.advUsed?'liab':''}">${money(a.advUsed,cur)}${a.advLimit?` <span class="muted" style="font-weight:500">of ${fmtNum(a.advLimit,cur)}</span>`:''}</b></div>${a.advLimit?`<div class="bar"><i style="width:${Math.min(100,a.advUsed/a.advLimit*100)}%;background:var(--warn)"></i></div><div class="xs muted">Still available: ${money(Math.max(0,a.advLimit-a.advUsed),cur)}</div>`:''}</div>`:''}
+  ${a.advLimit||a.advUsed?`<div class="stack" style="gap:5px"><div class="between small"><span>Advance owed</span><b class="tnum ${a.advUsed?'liab':''}">${money(a.advUsed,cur)}</b></div>${a.advFee?`<div class="between xs muted"><span>of which fees and interest</span><span class="tnum">${fmtNum(a.advFee,cur)}</span></div>`:''}${a.advLimit?`<div class="bar"><i style="width:${Math.min(100,advPrin(a)/a.advLimit*100)}%;background:var(--warn)"></i></div><div class="between xs"><span class="muted">Limit ${fmtNum(a.advLimit,cur)}</span><b>Still available: ${money(advAvail(a),cur)}</b></div>`:`<div class="xs muted">Add your advance limit so Kasente knows how far you can go.</div>`}${feePct(a)||dailyPct(a)?`<div class="xs muted">Costs: ${feePct(a)}% each time you draw, ${dailyPct(a)}% a day on what is still owed.</div>`:''}<div class="row" style="gap:6px;flex-wrap:wrap">${a.advUsed?`<button class="chipbtn" data-act="advRepaid" data-arg="${a.id}">It's repaid</button>`:''}<button class="chipbtn" data-act="advFix" data-arg="${a.id}">Correct the advance</button></div></div>`:''}
   ${a.loanLimit||a.loanOwed?`<div class="stack" style="gap:5px"><div class="between small"><span>Loan outstanding</span><b class="tnum ${a.loanOwed?'liab':''}">${money(a.loanOwed,cur)}</b></div>${a.loanLimit?`<div class="xs muted">Loan limit: ${money(a.loanLimit,cur)}</div>`:''}</div>`:''}
-  ${a.advUsed?`<div class="note warn" style="padding:10px 12px">${ic('info')}<span class="small">The next money you receive on ${esc(a.name)} repays the ${money(a.advUsed,cur)} advance first. If you receive ${money(a.advUsed*2,cur)}, about ${money(a.advUsed,cur)} reaches your balance.</span></div>`:''}
+  ${a.advUsed?`<div class="note warn" style="padding:10px 12px">${ic('info')}<span class="small">The next money you receive on ${esc(a.name)} repays the ${money(a.advUsed,cur)} first. If you receive ${money(a.advUsed+50000,cur)}, ${money(50000,cur)} reaches your balance and the full ${money(a.advLimit||a.advUsed,cur)} advance is available again.</span></div>`:''}
+  ${a.saved?`<div class="between small"><span>Saved on ${/mtn/.test(a.provider)?'MoKash':'wallet savings'}</span><b class="tnum">${money(a.saved,cur)}</b></div><div class="xs muted">Saving regularly helps raise your ${/mtn/.test(a.provider)?'MoKash ':''}loan limit.</div>`:''}
   <div class="between small"><span class="muted">Balance minus what you owe</span><b class="tnum">${money(a.bal-(a.advUsed||0)-(a.loanOwed||0),cur)}</b></div></div>`:'';
- return `<div class="row">${acctBadge(a,52)}<div class="grow"><span class="eyebrow">${esc(KIND_LABEL[a.kind]||'')}${a.currency!==CUR()?' · '+a.currency:''}</span><div class="tnum" style="font-family:var(--f-display);font-weight:800;font-size:26px">${money(a.bal,cur)}</div>${a.currency!==CUR()?`<div class="xs muted">≈ ${ugx(inHome(a))} at ${fmtNum(acctRate(a))} ${CUR()} per ${cur}</div>`:''}</div></div>
- <div style="margin:12px 0">${spark([...(a.trend||[]).slice(0,-1),a.bal/1000],340,46,'var(--accent)',true)}</div>
+ return `<div class="row">${acctBadge(a,52)}<div class="grow"><span class="eyebrow">${esc(KIND_LABEL[a.kind]||'')}${a.currency!==CUR()?' · '+a.currency:''}</span><div class="tnum ${acctReads(a)<0?'liab':''}" style="font-family:var(--f-display);font-weight:800;font-size:26px">${acctReads(a)<0?'−':''}${money(Math.abs(acctReads(a)),cur)}</div>${a.kind==='momo'&&a.advUsed?`<div class="xs muted">Wallet ${money(a.bal,cur)} · advance owed ${money(a.advUsed,cur)}</div>`:''}${a.currency!==CUR()?`<div class="xs muted">≈ ${ugx(inHome(a))} at ${fmtNum(acctRate(a))} ${CUR()} per ${cur}</div>`:''}</div></div>
+ <div style="margin:12px 0">${spark(acctHist(a,30),340,46,'var(--accent)',true)}</div>
  ${credit}
  <div class="row" style="margin:12px 0"><button class="btn sm grow" data-act="editAcct" data-arg="${a.id}">${ic('gear',16)}Edit account</button>${a.kind==='momo'||a.kind==='bank'?`<button class="btn sm grow" data-act="acctCredit" data-arg="${a.id}">${ic('hand',16)}Advance & loans</button>`:''}</div>
  ${a.kind==='bank'?`<label class="btn block" for="stmt" style="margin-bottom:12px">${ic('upload')}Import a bank statement (CSV)</label><input id="stmt" type="file" accept=".csv,text/csv" hidden data-live="stmt">`:''}
@@ -2478,8 +2479,8 @@ const ASSET_TYPES={land:['Land','map'],house:['House or building','house'],vehic
 function monthly(kind){const span=60;const since=plusDays(TODAY0,-span);const first=S.txns.length?Math.min(...S.txns.map(t=>pd(t.d).getTime())):Date.now();
  const days=Math.max(7,Math.min(span,(Date.now()-Math.max(first,since.getTime()))/DAY));const v=sumAmt(S.txns.filter(t=>t.kind===kind&&pd(t.d)>=since));return v/days*30.4}
 const liquidNow=()=>S.accounts.filter(a=>['momo','bank','cash'].includes(a.kind)).reduce((s,a)=>s+inHome(a),0);
-const savingsNow=()=>S.accounts.filter(a=>a.kind==='sacco').reduce((s,a)=>s+inHome(a),0);
-const creditLeft=()=>S.accounts.reduce((s,a)=>s+(Math.max(0,(a.advLimit||0)-(a.advUsed||0))+Math.max(0,(a.loanLimit||0)-(a.loanOwed||0)))*acctRate(a),0);
+let savingsNow=()=>S.accounts.filter(a=>a.kind==='sacco').reduce((s,a)=>s+inHome(a),0);
+let creditLeft=()=>S.accounts.reduce((s,a)=>s+(Math.max(0,(a.advLimit||0)-(a.advUsed||0))+Math.max(0,(a.loanLimit||0)-(a.loanOwed||0)))*acctRate(a),0);
 function wellness(){const inc=monthly('in'),out=monthly('out');const debt=providerDebt()+loansTaken();
  if(!inc&&!out)return null;
  const sRate=inc?(inc-out)/inc:0;const save=Math.max(0,Math.min(25,sRate/.2*25));
@@ -2501,11 +2502,11 @@ SCREENS.profile=()=>{const u=S.user||{};const cty=country();const w=wellness();c
  <div class="card" style="padding:16px;background:linear-gradient(150deg,var(--hero),var(--hero-2));color:var(--hero-ink);border:0"><span class="eyebrow" style="color:var(--hero-muted)">Net worth</span><div class="tnum" style="font-family:var(--f-display);font-weight:800;font-size:30px;margin-top:4px">${ugx(have-oweT)}</div><div class="small" style="color:var(--hero-muted)">You have ${ugx(have)} and owe ${ugx(oweT)}</div></div>
  <div class="kpi"><div class="stat"><span>Months of cover</span><b>${w&&w.out?(liquid/w.out).toFixed(1):'—'}</b></div><div class="stat"><span>Credit available</span><b>${kf(creditLeft())}</b></div><div class="stat"><span>Spend per month</span><b>${w?kf(w.out):'—'}</b></div><div class="stat"><span>Income per month</span><b>${w?kf(w.inc):'—'}</b></div></div>
  <div class="sec-head"><h2>What you have</h2><b class="tnum small">${ugx(have)}</b></div>
- <div class="list">${line('Money you can use',liquid,'','Mobile money, bank and cash')}${sav?line('SACCO and group savings',sav):''}${line('Investments',inv,'',S.inv.length?S.inv.length+' holding'+(S.inv.length>1?'s':''):'None yet')}${owed?line('Money people owe you',owed):''}${line('Property and other assets',assets,'',(S.assets||[]).length?(S.assets.length+' item'+(S.assets.length>1?'s':'')):'Land, a house, a vehicle, livestock…')}</div>
+ <div class="list">${line('Money you can use',liquid,'','Mobile money, bank and cash')}${sav?line('Savings',sav,'','SACCO, MoKash and group savings'):''}${line('Investments',inv,'',S.inv.length?S.inv.length+' holding'+(S.inv.length>1?'s':''):'None yet')}${owed?line('Money people owe you',owed):''}${line('Property and other assets',assets,'',(S.assets||[]).length?(S.assets.length+' item'+(S.assets.length>1?'s':'')):'Land, a house, a vehicle, livestock…')}</div>
  <div class="sec-head"><h2>What you owe</h2><b class="tnum small liab">${ugx(oweT)}</b></div>
  <div class="list">${oweT?`${adv?line('Mobile money advances',adv,'liab','MoMo Advance, Fuliza and similar'):''}${ploans?line('Loans from providers',ploans,'liab','MoKash, bank and app loans'):''}${people?line('Money borrowed from people',people,'liab'):''}`:'<div class="setrow"><span class="grow"><b>Nothing owed</b><span>Advances and loans show here when you take them</span></span></div>'}</div>
  <div class="sec-head"><h2>Accounts</h2><button class="link" data-go="accounts">Manage</button></div>
- <div class="list">${S.accounts.map(a=>`<button class="tx" data-act="acct" data-arg="${a.id}">${acctBadge(a,36)}<span class="tx-main"><span class="tx-title">${esc(a.name)}</span><span class="tx-sub">${esc(KIND_LABEL[a.kind]||'')}${(a.advUsed||a.loanOwed)?` · <span class="liab">owes ${fmtNum((a.advUsed||0)+(a.loanOwed||0),a.currency)}</span>`:''}</span></span><span class="tx-amt">${fmtNum(a.bal,a.currency)}${a.currency!==CUR()?`<small>${a.currency}</small>`:''}</span></button>`).join('')}</div>
+ <div class="list">${S.accounts.map(a=>`<button class="tx" data-act="acct" data-arg="${a.id}">${acctBadge(a,36)}<span class="tx-main"><span class="tx-title">${esc(a.name)}</span><span class="tx-sub">${esc(KIND_LABEL[a.kind]||'')}${a.loanOwed?` · <span class="liab">loan ${fmtNum(a.loanOwed,a.currency)}</span>`:''}${advLine(a)?` · <span class="${a.advUsed?'liab':''}">${advLine(a)}</span>`:''}</span></span><span class="tx-amt ${acctReads(a)<0?'liab':''}">${signedNum(acctReads(a),a.currency)}${a.currency!==CUR()?`<small>${a.currency}</small>`:''}</span></button>`).join('')}</div>
  <div class="sec-head"><h2>Property and assets</h2><button class="link" data-act="addAsset">Add</button></div>
  ${(S.assets||[]).length?`<div class="list">${S.assets.map(x=>{const t=ASSET_TYPES[x.type]||ASSET_TYPES.other;return `<button class="tx" data-act="editAsset" data-arg="${x.id}"><span class="chip" style="--c:var(--accent)">${ic(t[1])}</span><span class="tx-main"><span class="tx-title">${esc(x.name)}</span><span class="tx-sub">${t[0]}${x.note?' · '+esc(x.note):''}</span></span><span class="tx-amt">${kf(+x.value||0)}</span></button>`}).join('')}</div>`:`<button class="card" data-act="addAsset" style="text-align:left"><b>Add what you own</b><p class="small muted" style="margin-top:4px">Land, a house, a car or boda, livestock or business stock. Use a fair price you could sell it for today.</p></button>`}
  <div class="sec-head"><h2>Spending habits</h2><button class="link" data-go="spending">Details</button></div>
@@ -2871,7 +2872,7 @@ const baseWa=waReply;waReply=function(q){if(isFresh()&&/(sent|paid|received|with
 const baseTopbar=topbar;topbar=function(c){let h=baseTopbar(c);if(c==='home'&&S.mode)h=h.replace('<div class="top-actions">',`<div class="top-actions"><button class="icon-btn" data-go="profile" aria-label="My money profile" style="font-weight:800;font-size:13px;color:var(--accent)">${initials(S.user&&S.user.name)}</button>`).replace(`<button class="icon-btn" data-act="lockNow" aria-label="Lock app">${ic('lock')}</button>`,'');return h};
 const baseHome=SCREENS.home;SCREENS.home=()=>{let h=baseHome();h=h.replace('<small>UGX</small>',`<small>${CUR()}</small>`);
  const r0=h.indexOf('<div class="rail">'),r1=h.indexOf('<div class="quick">');
- if(r0>=0&&r1>r0)h=h.slice(0,r0)+`<div class="rail">${S.accounts.map(a=>{const debt=(a.advUsed||0)+(a.loanOwed||0);return `<button class="acct" data-act="acct" data-arg="${a.id}"><span class="acct-head">${acctBadge(a,30)}<span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(a.name)}</span></span><span class="acct-type">${esc(KIND_LABEL[a.kind]||'')}${a.currency!==CUR()?' · '+a.currency:''}</span><span class="acct-bal">${fmtNum(a.bal,a.currency)}</span>${debt?`<span class="xs liab" style="font-weight:600">Owes ${fmtNum(debt,a.currency)}</span>`:`<div style="margin-top:6px">${spark(a.trend,130,22,'var(--accent)')}</div>`}</button>`}).join('')}<button class="acct add" data-act="addAccount">${ic('plus')}Add account</button></div>\n `+h.slice(r1);
+ if(r0>=0&&r1>r0)h=h.slice(0,r0)+`<div class="rail">${S.accounts.map(a=>{const debt=(a.advUsed||0)+(a.loanOwed||0);return `<button class="acct" data-act="acct" data-arg="${a.id}"><span class="acct-head">${acctBadge(a,30)}<span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(a.name)}</span></span><span class="acct-type">${esc(KIND_LABEL[a.kind]||'')}${a.currency!==CUR()?' · '+a.currency:''}</span><span class="acct-bal ${acctReads(a)<0?'liab':''}">${signedNum(acctReads(a),a.currency)}</span>${advLine(a)?`<span class="xs ${a.advUsed?'liab':'muted'}" style="font-weight:600">${advLine(a)}</span>`:a.loanOwed?`<span class="xs liab" style="font-weight:600">Loan ${fmtNum(a.loanOwed,a.currency)}</span>`:`<div style="margin-top:6px">${spark(acctHist(a,14),130,22,'var(--accent)')}</div>`}</button>`}).join('')}<button class="acct add" data-act="addAccount">${ic('plus')}Add account</button></div>\n `+h.slice(r1);
  const s0=h.indexOf('</section>');if(s0>=0&&S.mode)h=h.slice(0,s0+10)+streakCard()+h.slice(s0+10);
  const advA=S.accounts.filter(a=>a.advUsed>0);if(advA.length){const i=h.indexOf('<div class="sec-head"><h2>Accounts</h2>');if(i>=0)h=h.slice(0,i)+advA.map(a=>`<button class="note warn" data-act="acct" data-arg="${a.id}" style="text-align:left">${ic('hand')}<span class="grow small"><b>${esc(a.name)} advance: ${money(a.advUsed,a.currency)} owed.</b> The next ${money(a.advUsed,a.currency)} you receive goes to repaying it first.</span></button>`).join('')+h.slice(i)}
  return h};
@@ -2902,35 +2903,109 @@ const baseResume3=window.kasenteOnResume;window.kasenteOnResume=away=>{baseResum
    leaves it at zero and records the rest as owed: an advance on mobile money, an overdraft on a bank,
    or a shortfall on cash. Money arriving on mobile money repays an open advance first, as MTN and Airtel do. */
 const signedNum=(n,c)=>(n<0?'−':'')+fmtNum(n,c);
+/* ---------- mobile money advance (MTN MoMo Advance and similar) ----------
+   How MTN describes it: you can spend past your balance up to your advance limit; each draw costs an access fee
+   (2.75% at MTN Uganda) and anything still owed at the end of a day attracts daily interest (0.95%).
+   Any money that later reaches the wallet repays the fees, interest and advance first.
+   advUsed = everything owed on the advance (amount drawn + fees + interest); advFee = the fees and interest part. */
 const DEBT_KEY=a=>a.kind==='momo'?'advUsed':a.kind==='bank'?'loanOwed':'short';
+const ADV_DEFAULTS={'mtn-ug':[2.75,0.95]};
+const advPrin=a=>Math.max(0,(a.advUsed||0)-(a.advFee||0));
+const advAvail=a=>a.advLimit?Math.max(0,a.advLimit-advPrin(a)):0;
+const feePct=a=>a.advFeePct!=null?+a.advFeePct:(ADV_DEFAULTS[a.provider]||[0,0])[0];
+const dailyPct=a=>a.advDaily!=null?+a.advDaily:(ADV_DEFAULTS[a.provider]||[0,0])[1];
+const advFeeOn=(a,amt)=>Math.round(amt*feePct(a)/100);
+function advAccrue(a){if(a.kind!=='momo')return;const today=ymd(TODAY0);if(!(a.advUsed>0)){a.advAccr=today;return}
+ if(!a.advAccr){a.advAccr=today;return}const days=Math.round((pd(today+' 00:00')-pd(a.advAccr+' 00:00'))/DAY);if(days<=0)return;
+ const r=dailyPct(a)/100;if(r>0){let owed=a.advUsed;for(let i=0;i<Math.min(days,365);i++)owed+=owed*r;const add=Math.round(owed-a.advUsed);a.advUsed+=add;a.advFee=(a.advFee||0)+add}a.advAccr=today}
+const advAccrueAll=()=>S.accounts.forEach(advAccrue);
+/* money in: fees and interest first, then the advance itself */
+function advRecover(a,amt){const rec=Math.min(amt,a.advUsed||0);if(rec<=0)return[0,0];const fee=Math.min(rec,a.advFee||0);a.advFee=(a.advFee||0)-fee;a.advUsed-=rec;if(a.advUsed<=0){a.advUsed=0;a.advFee=0}return[rec,fee]}
 const baseApplyBalance=applyBalance;
 applyBalance=function(t,dir){const a=acct(t.acct);
- if(dir<0&&a){if(t.autoDebt){const k=t.autoDebt.k,fromDebt=Math.min(t.autoDebt.amt,a[k]||0);a[k]=(a[k]||0)-fromDebt;a.bal-=fromDebt}if(t.autoRecover){a.advUsed=(a.advUsed||0)+t.autoRecover;a.bal+=t.autoRecover}}
+ if(dir<0&&a){const d=t.autoDebt;if(d){const back=Math.min(d.amt+(d.fee||0),a[d.k]||0);a[d.k]=(a[d.k]||0)-back;if(d.fee)a.advFee=Math.max(0,(a.advFee||0)-d.fee);if(d.short)a.short=Math.max(0,(a.short||0)-d.short);a.bal-=d.amt+(d.short||0)}
+  if(t.autoRecover){a.advUsed=(a.advUsed||0)+t.autoRecover;a.advFee=(a.advFee||0)+(t.autoRecoverFee||0);a.bal+=t.autoRecover}}
+ const wasAdv=a&&a.advUsed>0;
  baseApplyBalance(t,dir);if(!a)return;
- if(dir>0){delete t.autoDebt;delete t.autoRecover;
-  if(a.bal<0){const over=-a.bal,k=DEBT_KEY(a);a[k]=(a[k]||0)+over;a.bal=0;t.autoDebt={k,amt:over}}
-  else if(a.kind==='momo'&&a.advUsed>0&&t.src!=='sms'&&(t.kind==='in'||t.kind==='topup')){const v=t.orig?t.orig.amt:t.amt;const rec=Math.min(v,a.advUsed,a.bal);if(rec>0){a.advUsed-=rec;a.bal-=rec;t.autoRecover=rec}}}
- if(dir<0&&a.bal<0){const over=-a.bal,k=DEBT_KEY(a);a[k]=(a[k]||0)+over;a.bal=0}};
-/* A message's own balance is the truth; if it shows less than expected while an advance is open, the difference repaid it */
+ if(dir>0){delete t.autoDebt;delete t.autoRecover;delete t.autoRecoverFee;
+  /* an advance message from the provider: add the access fee to what is owed */
+  if(t.debt==='advance'&&t.kind==='borrow'&&a.kind==='momo'){const fee=advFeeOn(a,t.amt);if(fee){a.advUsed+=fee;a.advFee=(a.advFee||0)+fee;t.advFeeAdded=fee}}
+  if(a.bal<0){const over=-a.bal;a.bal=0;
+   if(t.src==='sms'){/* the message's own balance follows and is the truth; never invent debt from a message */}
+   else if(a.kind==='momo'){advAccrue(a);const take=a.advLimit?Math.min(over,advAvail(a)):over;const fee=advFeeOn(a,take);const rest=over-take;
+    a.advUsed=(a.advUsed||0)+take+fee;a.advFee=(a.advFee||0)+fee;if(rest>0)a.short=(a.short||0)+rest;t.autoDebt={k:'advUsed',amt:take,fee,short:rest}}
+   else{const k=DEBT_KEY(a);a[k]=(a[k]||0)+over;t.autoDebt={k,amt:over}}}
+  else if(a.kind==='momo'&&a.advUsed>0&&t.src!=='sms'&&(t.kind==='in'||t.kind==='topup')){const v=t.orig?t.orig.amt:t.amt;const[rec,fee]=advRecover(a,Math.min(v,a.bal));if(rec>0){a.bal-=rec;t.autoRecover=rec;t.autoRecoverFee=fee}}
+  if(a.kind==='momo'&&!wasAdv&&a.advUsed>0)a.advAccr=ymd(TODAY0)}
+ if(dir<0&&a.bal<0){const over=-a.bal;a.bal=0;if(t.src!=='sms'){const k=DEBT_KEY(a);a[k]=(a[k]||0)+over}}};
+/* A message's own balance is the truth. Money arriving while an advance is open is recovered by the provider first:
+   if the new balance is lower than expected, the difference repaid the advance; if nothing was taken, nothing is owed. */
 const baseApplySms=applySms;
-applySms=function(r,quiet){if(!r)return 0;let before=null,a=null;if(!r.limits&&!r.invest){a=acctForProvider(r.pid,r.cur);before={bal:a.bal,adv:a.advUsed||0}}
+applySms=function(r,quiet){if(!r)return 0;let before=null,a=null;if(!r.limits&&!r.invest){a=acctForProvider(r.pid,r.cur);advAccrue(a);before={bal:a.bal,adv:a.advUsed||0,fromSms:!!a.balSms,at:a.balSmsAt||''}}
  const n=baseApplySms(r,quiet);
- if(a&&before&&r.bal!=null&&r.txns.length){const main=r.txns[0];const recInMsg=r.txns.some(t=>t.kind==='repay');
-  if(main.kind==='in'&&!recInMsg&&before.adv>0){const expected=before.bal+r.amt;const gap=expected-r.bal;if(gap>0){const rec=Math.min(gap,a.advUsed||0);if(rec>0){a.advUsed-=rec;pushAlert(`${a.name}: ${money(rec,a.currency)} of your advance was repaid`,`Your balance after the payment is ${money(r.bal,a.currency)}.`,'accounts','hand')}}}
-  if(a.bal<0){const k=DEBT_KEY(a);a[k]=(a[k]||0)-a.bal;a.bal=0}}
+ if(a&&before&&r.txns.length){const main=r.txns[0];const recInMsg=r.txns.some(t=>t.kind==='repay'||t.kind==='borrow');const when=r.date||'';
+  /* an older message read late never overrides a newer balance */
+  if(r.bal!=null&&before.at&&when&&when<before.at){a.bal=before.bal;return n}
+  if(r.bal!=null){a.balSms=true;a.balSmsAt=when||a.balSmsAt;
+   /* paid more than the wallet held and the balance is now zero: the rest came from the advance */
+   if(a.kind==='momo'&&main.kind==='out'&&!recInMsg&&r.bal===0&&before.fromSms&&a.advLimit){const over=Math.round(r.amt+(r.fee||0)-before.bal);const take=Math.min(Math.max(0,over),advAvail(a));if(take>0){const fee=advFeeOn(a,take);if(!(a.advUsed>0))a.advAccr=ymd(TODAY0);a.advUsed=(a.advUsed||0)+take+fee;a.advFee=(a.advFee||0)+fee;main.advTaken=take;if(!quiet)pushAlert(`${a.name}: ${money(take,a.currency)} taken from your advance`,`You now owe ${money(a.advUsed,a.currency)} including fees. The next money you receive repays it first.`,'accounts','hand')}}
+   if(a.kind==='momo'&&main.kind==='in'&&!recInMsg&&before.adv>0){const expected=before.bal+r.amt-(r.fee||0);const gap=Math.round(expected-r.bal);
+    if(gap>0){const[rec]=advRecover(a,gap);if(rec>0&&!quiet)pushAlert(`${a.name}: ${money(rec,a.currency)} of your advance was repaid`,a.advUsed?`Still owed on the advance: ${money(a.advUsed,a.currency)}.`:'Your advance is fully repaid.','accounts','hand')}
+    else if(before.fromSms&&r.bal>0){a.advUsed=0;a.advFee=0;if(!quiet)pushAlert(`${a.name}: your advance is cleared`,'Money came in without any deduction, so nothing is owed on the advance.','accounts','hand')}}}
+  if(a.bal<0)a.bal=0}
+ if(a&&a.kind==='momo'){if(a.advLimit&&advPrin(a)>a.advLimit)a.advUsed=a.advLimit+(a.advFee||0);if(a.advUsed<0)a.advUsed=0}
  return n};
-/* old saved data: move any negative balances into what is owed */
+/* MoKash and other wallet savings: money you have, and saving regularly raises the MoKash loan limit */
+const SAVE_RE=/\b(mokash|momo ?save|savings? (?:account|wallet)|wewole save|m-shwari|lock savings)\b/i;
+const baseApplySms2=applySms;
+applySms=function(r,quiet){const n=baseApplySms2(r,quiet);if(!r||r.limits||r.invest||!r.txns.length)return n;const t=r.txns[0];const s=t.sms||'';if(!SAVE_RE.test(s))return n;const a=acctForProvider(r.pid,r.cur);
+ const sb=s.match(/sav\w*\s*(?:account\s*)?bal(?:ance)?\s*(?:is|:)?\s*(?:UGX|KES|TZS|RWF|USD)?\s*([\d,]+(?:\.\d+)?)/i);
+ if(t.kind==='out'){t.cat='savings';t.sub='Mobile money savings';t.title=`Saved to ${/mokash/i.test(s)?'MoKash':'wallet savings'}`;a.saved=(+a.saved||0)+t.amt}
+ else if(t.kind==='in'&&/\bfrom\b[^.]{0,40}(mokash|sav)/i.test(s)){t.cat='savings';t.title=`From ${/mokash/i.test(s)?'MoKash':'wallet'} savings`;a.saved=Math.max(0,(+a.saved||0)-t.amt)}
+ if(sb)a.saved=num(sb[1]);return n};
+/* old saved data: put right what earlier builds got wrong */
 const baseMigrate4=window.kasenteMigrate;
-window.kasenteMigrate=function(had){baseMigrate4(had);S.accounts.forEach(a=>{a.short=+a.short||0;if(a.bal<0){const k=DEBT_KEY(a);a[k]=(a[k]||0)-a.bal;a.bal=0}})};
-const acctOwes=a=>(a.advUsed||0)+(a.loanOwed||0)+(a.short||0);
+window.kasenteMigrate=function(had){baseMigrate4(had);
+ S.accounts.forEach(a=>{a.short=+a.short||0;a.advFee=+a.advFee||0;a.saved=+a.saved||0;
+  if(a.kind==='momo'){const dfl=ADV_DEFAULTS[a.provider]||[0,0];if(a.advFeePct==null)a.advFeePct=dfl[0];if(a.advDaily==null)a.advDaily=dfl[1]}
+  if(a.bal<0){if(a.kind==='momo'&&!a.advFix4)a.bal=0;else{const k=DEBT_KEY(a);a[k]=(a[k]||0)-a.bal;a.bal=0}}
+  /* build 4 counted every message that went past the balance as advance used; rebuild it from real advance events */
+  if(a.kind==='momo'&&!a.advFix4){a.advFix4=1;const ts=S.txns.filter(t=>t.acct===a.id);if(ts.some(t=>t.src==='sms'&&t.autoDebt)||(a.advLimit&&a.advUsed>a.advLimit)){let u=0;
+    ts.sort((x,y)=>pd(x.d)-pd(y.d)).forEach(t=>{if(t.src==='sms'&&t.autoDebt){delete t.autoDebt;return}if(t.debt==='advance')u=t.kind==='borrow'?u+t.amt:Math.max(0,u-t.amt);if(t.autoDebt&&t.autoDebt.k==='advUsed')u+=t.autoDebt.amt;if(t.autoRecover)u=Math.max(0,u-t.autoRecover)});
+    a.advUsed=Math.min(a.advUsed,u);a.advFee=0;if(a.advLimit)a.advUsed=Math.min(a.advUsed,a.advLimit);a.short=0}}
+  if(a.kind==='momo'&&a.advLimit&&advPrin(a)>a.advLimit)a.advUsed=a.advLimit+(a.advFee||0)});
+ advAccrueAll()};
+const acctOwes=a=>(a.advUsed||0)+(a.loanOwed||0);
 const liquidAccts=()=>S.accounts.filter(a=>['momo','bank','cash'].includes(a.kind));
 const owedTotal=()=>S.accounts.reduce((s,a)=>s+acctOwes(a)*acctRate(a),0)+loansTaken();
-/* the short on cash is money spent that wasn't recorded coming in */
-
+/* what an account "reads": a wallet on advance reads minus what is owed on it */
+const acctReads=a=>(a.bal||0)-(a.kind==='momo'?(a.advUsed||0):0);
+const advLine=a=>a.kind!=='momo'||!(a.advLimit||a.advUsed)?'':a.advUsed?`Advance owed ${fmtNum(a.advUsed,a.currency)}${a.advLimit?` · ${kf(advAvail(a))} left`:''}`:`Advance available ${kf(a.advLimit)}`;
+creditLeft=()=>S.accounts.reduce((s,a)=>s+(advAvail(a)+Math.max(0,(a.loanLimit||0)-(a.loanOwed||0)))*acctRate(a),0);
+const baseSavings4=savingsNow;savingsNow=()=>baseSavings4()+S.accounts.reduce((s,a)=>s+(+a.saved||0)*acctRate(a),0);
 /* ---------- home: money you can use, what you owe, what's left this cycle ---------- */
-function liquidHistory(){S.liqHist=S.liqHist||{};S.liqHist[ymd(TODAY0)]=liquidNow();const ks=Object.keys(S.liqHist).sort().slice(-30);return ks.map(k=>S.liqHist[k]/1000)}
+/* the line on the home card: money you could use at the end of each of the last 30 days, worked back from today
+   through every recorded transaction, so it moves with what really happened */
+function balSeries(accs,days,home){const ids=new Set(accs.map(a=>a.id));const cash=accs.find(a=>a.kind==='cash');
+ let v=accs.reduce((x,a)=>x+(home?inHome(a):a.bal),0);const end=plusDays(TODAY0,1);
+ const delta=t=>{let d=0;const a=acct(t.acct);if(a&&ids.has(a.id)){const r=home?acctRate(a):1;const amt=t.orig?t.orig.amt:(home?t.amt:t.amt/acctRate(a));d+=(effOf(t)>0?1:-1)*amt*r;if(t.autoDebt)d+=(t.autoDebt.amt+(t.autoDebt.short||0))*r;if(t.autoRecover)d-=t.autoRecover*r}
+  if(cash&&(t.kind==='move'||t.kind==='topup')&&t.acct!==cash.id)d+=(t.kind==='move'?1:-1)*t.amt/(home?1:acctRate(cash));return d};
+ const ts=S.txns.filter(t=>pd(t.d)>=plusDays(TODAY0,-days)).sort((x,y)=>pd(y.d)-pd(x.d));
+ const out=[];let i=0;for(let k=0;k<=days;k++){const dayEnd=plusDays(end,-k);while(i<ts.length&&pd(ts[i].d)>=dayEnd){v-=delta(ts[i]);i++}out.push(Math.max(0,v))}return out.reverse()}
+function liquidHistory(){return balSeries(liquidAccts(),30,true).map(x=>x/1000)}
+const acctHist=(a,days)=>balSeries([a],days||14,false).map(x=>x/1000);
+/* putting the advance right by hand */
+ACT.advRepaid=id=>{const a=acct(id);a.advUsed=0;a.advFee=0;closeSheet();refresh();toast(`${a.name}: advance cleared. The full limit is available again.`,'check')};
+ACT.advFix=id=>{const a=acct(id);openSheet(`${esc(a.name)} · advance`,`<form class="stack" data-form="advFix" data-id="${id}" style="gap:10px">
+ <div class="grid2"><label class="field"><span>Advance limit</span><input name="lim" type="number" min="0" step="any" value="${a.advLimit||''}"></label><label class="field"><span>Owed now (with fees)</span><input name="used" type="number" min="0" step="any" value="${a.advUsed||''}" placeholder="0"></label></div>
+ <div class="grid2"><label class="field"><span>Fee each draw (%)</span><input name="fee" type="number" min="0" step="any" value="${feePct(a)}"></label><label class="field"><span>Interest per day (%)</span><input name="daily" type="number" min="0" step="any" value="${dailyPct(a)}"></label></div>
+ <label class="field"><span>Savings on this wallet (e.g. MoKash)</span><input name="saved" type="number" min="0" step="any" value="${a.saved||''}" placeholder="0"></label>
+ <p class="xs muted">Dial *165# (MTN) or check your last message to see what you owe. MTN Uganda charges 2.75% each time you draw an advance and 0.95% a day on what is still owed.</p>
+ <button class="btn primary">Save</button></form>`)};
+FORMS.advFix=(fd,f)=>{const a=acct(f.dataset.id);a.advLimit=+fd.get('lim')||0;const u=+fd.get('used')||0;if(u!==a.advUsed){a.advUsed=u;a.advFee=0;a.advAccr=ymd(TODAY0)}a.advFeePct=+fd.get('fee')||0;a.advDaily=+fd.get('daily')||0;a.saved=+fd.get('saved')||0;closeSheet();refresh();toast('Saved','check')};
+
 const baseHome4=SCREENS.home;
-SCREENS.home=()=>{let h=baseHome4();const s0=h.indexOf('<section class="hero"'),s1=h.indexOf('</section>',s0);if(s0<0||s1<0)return h;
+SCREENS.home=()=>{advAccrueAll();let h=baseHome4();const s0=h.indexOf('<section class="hero"'),s1=h.indexOf('</section>',s0);if(s0<0||s1<0)return h;
  const liquid=liquidNow(),owe=owedTotal(),after=liquid-owe;const left=cycleIncome()-cycleSpent();const hist=liquidHistory();
  const hero=`<section class="hero" aria-label="Money you can use">
   <div class="between"><span class="eyebrow">Money you can use now</span>${isFresh()?'':'<span class="ghost-pill">Sample data</span>'}</div>

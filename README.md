@@ -42,6 +42,13 @@ People register by signing in with their Microsoft email (Outlook, Hotmail, Live
 
 Then put the Application (client) ID in `gradle.properties` as `kasenteMsClientId=…`, or add it as a repository secret named `KASENTE_MS_CLIENT_ID`.
 
+## What's new in test build 7
+
+- **MoMo Advance works like MTN's.** Spending past your balance draws on the advance only up to your limit, with MTN's 2.75% access fee and 0.95% daily interest. The wallet reads minus what you owe (for example −UGX 102,750 after using a 100,000 advance). Money coming in repays the advance first, then the full limit is available again. Messages no longer create made-up debt, older messages read late no longer overwrite a newer balance, and earlier inflated advances are rebuilt from real advance events. Each MoMo account has "It's repaid" and "Correct the advance".
+- **MoKash and wallet savings** are recorded on the account, counted in what you have, and read from messages.
+- **The home graph and account graphs move** with your real transactions over the last 30 days.
+- Cash deposits at an agent now add to mobile money (they were subtracted before).
+
 ## What's new in test build 4
 
 - **Balances that add up.** Spending more than an account holds leaves it at zero and records the rest as owed (advance on mobile money, overdraft on a bank, shortfall on cash). Home shows money you can use, what you owe, and what's left after debts.
