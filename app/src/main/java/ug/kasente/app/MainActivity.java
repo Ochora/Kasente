@@ -33,6 +33,7 @@ public class MainActivity extends Activity {
     static final int REQ_SMS = 11, REQ_FILE = 12, REQ_NOTIF = 13, REQ_RECEIPT = 14;
 
     WebView web;
+    android.widget.FrameLayout root;
     ValueCallback<Uri[]> fileCallback;
     Uri cameraUri;
     long pausedAt = 0;
@@ -47,8 +48,12 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         if (state != null && state.getString("receiptUri") != null) receiptUri = Uri.parse(state.getString("receiptUri"));
+        // Lets invoices and reports be drawn whole into PDF files (must come before any WebView exists)
+        if (Build.VERSION.SDK_INT >= 21) WebView.enableSlowWholeDocumentDraw();
+        root = new android.widget.FrameLayout(this);
         web = new WebView(this);
-        setContentView(web);
+        root.addView(web, new android.widget.FrameLayout.LayoutParams(-1, -1));
+        setContentView(root);
 
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);

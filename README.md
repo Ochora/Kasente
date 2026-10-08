@@ -42,6 +42,14 @@ People register by signing in with their Microsoft email (Outlook, Hotmail, Live
 
 Then put the Application (client) ID in `gradle.properties` as `kasenteMsClientId=…`, or add it as a repository secret named `KASENTE_MS_CLIENT_ID`.
 
+## What's new in test build 4
+
+- **Balances that add up.** Spending more than an account holds leaves it at zero and records the rest as owed (advance on mobile money, overdraft on a bank, shortfall on cash). Home shows money you can use, what you owe, and what's left after debts.
+- **Net worth** lives on My money profile, with your photo, name and what you do.
+- **Businesses.** Add as many as you run. Each has its own money (cash, mobile money, bank), sales and expenses, clients, profit and loss, and balance sheet, separate from your personal money.
+- **Invoices and receipts** with your logo, colours and one of three styles, shaped by questions about the business (a law firm gets fee notes with hours and rates; a shop gets quantities). Shared as PDF files; overdue invoices trigger reminders and a ready-written message to the client.
+- **Tax guide (Uganda, 2026/27).** PAYE, rental tax, presumptive tax for small businesses, individual rates for professionals, 30% for companies, the VAT threshold of UGX 300M, exemptions and deadlines (which can be added to Bills). Estimates only.
+
 ## What works in this build (test build 3)
 
 | Feature | Status |
@@ -75,7 +83,7 @@ Then put the Application (client) ID in `gradle.properties` as `kasenteMsClientI
 
 ## Project layout
 
-- `web-src/`: the sources the app screens are built from (`kasente.html` prototype, `layer.js`, `l2/*.js` build 3 features, `i18n.js` translations, `transform.py` which combines them into `app/src/main/assets/index.html`)
+- `web-src/`: the sources the app screens are built from (`kasente.html` prototype, `layer.js`, `l2/*.js` build 3 and 4 features, `i18n.js` translations, `transform.py` which combines them into `app/src/main/assets/index.html`)
 
 
 - `app/src/main/assets/index.html`: the whole app interface (HTML, CSS and JavaScript, fonts bundled for offline use)
@@ -83,6 +91,7 @@ Then put the Application (client) ID in `gradle.properties` as `kasenteMsClientI
   - `MainActivity.java`: hosts the interface, handles the camera, back button and status bar
   - `Bridge.java`: what the interface can ask the phone for (SMS, files, fingerprint, reminders)
   - `Receipts.java`: reads receipt photos with on-device text recognition
+  - `Pdf.java`: turns invoices, receipts and reports into A4 PDF files in Downloads/Kasente
   - `Net.java`: exchange rates and the optional Claude advisor
   - `Cloud.java`: Microsoft sign-in (no password or secret stored) and reading/writing the OneDrive app folder
   - `Reminders.java`, `ReminderReceiver.java`, `BootReceiver.java`: bill and loan notifications

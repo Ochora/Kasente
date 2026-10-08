@@ -158,8 +158,8 @@ srcTag=s=>({sms:'SMS',receipt:'Receipt',manual:'Manual',whatsapp:'WhatsApp',impo
 
 /* ---------- totals that understand currencies, advances and assets ---------- */
 acctTotal=()=>S.accounts.reduce((a,x)=>a+inHome(x),0);
-const acctDebt=a=>((a.advUsed||0)+(a.loanOwed||0))*acctRate(a);
-const providerDebt=()=>S.accounts.reduce((s,a)=>s+acctDebt(a),0);
+let acctDebt=a=>((a.advUsed||0)+(a.loanOwed||0))*acctRate(a);
+let providerDebt=()=>S.accounts.reduce((s,a)=>s+acctDebt(a),0);
 const assetTotal=()=>(S.assets||[]).reduce((s,x)=>s+(+x.value||0),0);
 const loansTaken=()=>S.loans.filter(l=>l.dir==='in').reduce((a,l)=>a+l.amt-l.paid,0);
 netWorth=()=>acctTotal()+invTotal()+owedToMe()+assetTotal()-loansTaken()-providerDebt();

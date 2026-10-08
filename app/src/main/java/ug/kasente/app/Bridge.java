@@ -215,6 +215,12 @@ public class Bridge {
         });
     }
 
+    /** Saves an HTML invoice, receipt or report as a PDF file in Downloads/Kasente; answers with its address. */
+    @JavascriptInterface
+    public void makePdf(String name, String html, String id) {
+        Pdf.make(act, name, html, id);
+    }
+
     /* ---------- receipts ---------- */
 
     @JavascriptInterface
